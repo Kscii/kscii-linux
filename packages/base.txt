@@ -1,0 +1,17 @@
+base-devel
+git
+curl
+wget
+rsync
+unzip
+zip
+tar
+man-db
+man-pages
+nano
+vim
+less
+which
+tree
+reflector
+pacman-contrib

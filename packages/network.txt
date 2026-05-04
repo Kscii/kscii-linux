@@ -1,0 +1,5 @@
+networkmanager
+nm-connection-editor
+bluez
+bluez-utils
+openssh

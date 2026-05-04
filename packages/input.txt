@@ -1,0 +1,7 @@
+fcitx5
+fcitx5-configtool
+fcitx5-rime
+fcitx5-chinese-addons
+noto-fonts
+noto-fonts-cjk
+noto-fonts-emoji

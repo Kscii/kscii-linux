@@ -1,0 +1,13 @@
+fish
+starship
+fzf
+zoxide
+eza
+bat
+ripgrep
+fd
+btop
+gdu
+yazi
+lazygit
+fastfetch

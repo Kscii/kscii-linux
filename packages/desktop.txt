@@ -1,0 +1,10 @@
+niri
+waybar
+fuzzel
+kitty
+firefox
+xdg-desktop-portal
+xdg-desktop-portal-gnome
+polkit-gnome
+qt5-wayland
+qt6-wayland

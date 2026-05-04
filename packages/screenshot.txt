@@ -1,0 +1,5 @@
+grim
+slurp
+wl-clipboard
+satty
+swappy
