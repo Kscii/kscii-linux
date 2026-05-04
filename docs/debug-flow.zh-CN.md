@@ -109,6 +109,14 @@ sudo pacman -Sy --needed git
 
 ## 2. clone 并执行脚本
 
+先创建一个“脚本执行前”快照（用于重复测试回滚）：
+
+```bash
+sudo btrfs subvolume snapshot -r / /.snap-pre-bootstrap
+```
+
+执行脚本：
+
 ```bash
 git clone Kscii/kscii-linux
 cd kscii-linux
@@ -119,30 +127,52 @@ TTY 阶段脚本是英文提示，流程包括：
 
 1. 检查网络并可引导重连
 2. 一键安装包列表
-3. 启用并启动 sshd
-4. 输出其他设备连接 SSH 的命令
 
 ## 3. 常用单独脚本
 
 - 仅重连网络：`sudo bash scripts/tty/reconnect-network.sh`
 - 仅安装包：`sudo bash scripts/tty/install-all.sh`
-- 仅配置 SSH：`sudo bash scripts/tty/setup-ssh.sh`
 
-## 4. 远程调试建议
+## 4. 手动启动 SSH 并连接
 
-在你的开发机上，通过脚本输出的命令连接，例如：
+bootstrap 完成后，手动启动 SSH 服务：
 
 ```bash
-ssh <username>@<target-ip>
+sudo systemctl enable --now sshd
 ```
 
-建议：
+查看本机 IP：
+
+```bash
+ip -4 addr
+```
+
+在开发机上连接（替换 `<username>` 和 `<ip>`）：
+
+```bash
+ssh <username>@<ip>
+```
+
+## 5. 远程调试建议
+
+连接后即可在目标机上远程执行脚本。建议：
 
 1. 每次大改前先做一次 Btrfs 快照。
 2. 小步提交，方便回滚。
 3. 修改包列表后，优先用 `install-all.sh` 单独验证。
 
-## 5. 进入 Niri 后的中文脚本
+如果要回到“脚本执行前”的状态，使用下面回滚流程（在 Live ISO 环境执行）：
+
+```bash
+sudo mount /dev/<root-partition> /mnt
+sudo btrfs subvolume delete /mnt/@
+sudo btrfs subvolume snapshot /mnt/.snap-pre-bootstrap /mnt/@
+sudo umount /mnt
+```
+
+> 说明：`@` 是常见 Btrfs 根子卷名；如果你的根子卷名称不同，请替换为实际名称。
+
+## 6. 进入 Niri 后的中文脚本
 
 进入图形环境后执行：
 
@@ -156,7 +186,7 @@ bash scripts/gui/post-niri.sh
 2. 检查输入法、截图链路和常用桌面命令是否可用
 3. 给出中文下一步建议
 
-## 6. 故障排查
+## 7. 故障排查
 
 1. 网络重连失败：先确认 NetworkManager 是否已启动
 

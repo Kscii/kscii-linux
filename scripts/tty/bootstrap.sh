@@ -9,8 +9,6 @@ source "${_BOOTSTRAP_DIR}/../../lib/common.sh"
 source "${REPO_ROOT}/lib/network.sh"
 # shellcheck source=lib/packages.sh
 source "${REPO_ROOT}/lib/packages.sh"
-# shellcheck source=lib/ssh.sh
-source "${REPO_ROOT}/lib/ssh.sh"
 
 require_root
 
@@ -34,8 +32,7 @@ if ! install_all_groups_interactive; then
   exit 1
 fi
 
-setup_ssh_interactive || true
-
 print_step "Bootstrap done"
+print_info "SSH not started automatically. Start it manually when needed."
 print_info "Next step after you enter Niri:"
 printf "  bash %s/scripts/gui/post-niri.sh\n" "${REPO_ROOT}"
