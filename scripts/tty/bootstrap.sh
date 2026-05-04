@@ -38,7 +38,12 @@ if ! install_all_groups_interactive; then
   exit 1
 fi
 
+print_step "Ensure system services"
+ensure_service_enabled_running NetworkManager
+ensure_service_enabled_running sshd
+ensure_service_enabled_running bluetooth
+
 print_step "Bootstrap done"
-print_info "SSH not started automatically. Start it manually when needed."
+print_info "Core services ensured: NetworkManager, sshd, bluetooth."
 print_info "Next step after you enter Niri:"
 printf "  bash %s/scripts/gui/post-niri.sh\n" "${REPO_ROOT}"

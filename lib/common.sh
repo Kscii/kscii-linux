@@ -45,3 +45,30 @@ confirm_yes_no() {
     [[ "${answer}" =~ ^[Yy]$ ]]
   fi
 }
+
+ensure_service_enabled_running() {
+  local service_name="$1"
+
+  if systemctl is-enabled --quiet "${service_name}" && systemctl is-active --quiet "${service_name}"; then
+    print_info "Service '${service_name}' is already enabled and running. Skip."
+    return 0
+  fi
+
+  if ! systemctl is-enabled --quiet "${service_name}"; then
+    print_info "Enabling service '${service_name}'."
+    systemctl enable "${service_name}"
+  fi
+
+  if ! systemctl is-active --quiet "${service_name}"; then
+    print_info "Starting service '${service_name}'."
+    systemctl start "${service_name}"
+  fi
+
+  if systemctl is-enabled --quiet "${service_name}" && systemctl is-active --quiet "${service_name}"; then
+    print_info "Service '${service_name}' is enabled and running."
+    return 0
+  fi
+
+  print_error "Failed to ensure service '${service_name}'."
+  return 1
+}

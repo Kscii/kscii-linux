@@ -5,40 +5,25 @@
 目标：在最小化安装的 Arch 上，先跑通网络、包安装、SSH 远程调试，再进入 Niri 后做图形侧检查。
 
 ## 0. 约定
-
 - 当前系统：最小化安装 Arch Linux
 - 文件系统：Btrfs
 - 当前阶段：开发调试阶段（需要从 git 克隆脚本）
 - 非当前阶段：正式 ISO 内置安装器（后续再做）
-
-**网络栈选型：NetworkManager + 默认 backend（wpa_supplicant）**
-
-不使用 systemd-networkd，原因如下：
-
-- 本发行版面向桌面场景，NetworkManager 提供 nmtui、nmcli、nm-connection-editor 等完整工具链，与 Niri 桌面集成更好。
-- systemd-networkd 面向服务器/容器，手工管理配置文件，缺少桌面友好的交互工具。
-- NetworkManager 默认 Wi-Fi backend 是 wpa_supplicant，无需额外配置；如需换成 iwd backend，后续可单独调整，初期不做。
+- 网络栈选型：NetworkManager + 默认 backend（wpa_supplicant）
+- 默认音频栈：PipeWire + WirePlumber + pipewire-jack（Wayland/Niri 优先）
+- 默认字体：noto-fonts / noto-fonts-cjk / noto-fonts-emoji
 
 **两阶段联网方式：**
-
 | 阶段 | 工具 | 原因 |
 |------|------|------|
 | 系统首次联网（装好之前） | iwd（`iwctl`） | 最小化 Arch 默认可用，无需额外安装 |
 | bootstrap 完成后 | NetworkManager（`nmtui` / `nmcli`） | 已安装，功能完整，后续 GUI 面板也依赖它 |
 
-## 1. clone 之前要做什么
+## 1. archinstall之前
 
-1. 第一次联网（bootstrap 执行之前）。
-
-最小化 Arch 默认有 iwd，使用 `iwctl` 进行交互式连接：
-
+先使用iwd连接到互联网：
 ```bash
 iwctl
-```
-
-进入 iwctl 后依次执行（把 `wlan0` 换成你的无线网卡名，用 `device list` 查看）：
-
-```
 device list
 station wlan0 scan
 station wlan0 get-networks
@@ -47,39 +32,34 @@ exit
 ```
 
 有线网络不需要额外操作，插线后直接检查是否已获取 IP：
-
 ```bash
 ip -4 addr
 ```
 
 联通性验证：
-
 ```bash
 ping -c 2 archlinux.org
 ```
 
+然后执行archinstall
+> 记得在archinstall的时候就为快照单独留一个子卷 @snapshots
+
 > **注意**：这里只是临时联网。bootstrap 完成后，后续所有联网操作统一通过 NetworkManager（`nmtui` 或 `nmcli`）管理，不再使用 iwd。
 
-2. 调整 TTY 字体大小（如果默认字体太小）。
+## 2. archinstall之后, gitclone之前
 
-最小化 Arch 默认 TTY 字体可能偏小，高分屏尤为明显。先临时切换查看效果：
+先使用nmtui重新连接网络
+```bash
+nmtui
+```
 
+先安装字体包, 然后调整 TTY 字体大小:
 ```bash
 sudo pacman -S --needed terminus-font
 setfont ter-132b
 ```
 
-`ter-132b` 是 Terminus 字体 32px 粗体版本，适合高分屏。常用候选：
-
-| 字体名 | 尺寸 | 适合场景 |
-|--------|------|----------|
-| `ter-116b` | 16px 粗体 | 普通 1080p |
-| `ter-120b` | 20px 粗体 | 1080p 高分 / 小屏 HiDPI |
-| `ter-128b` | 28px 粗体 | 2K / 小屏 HiDPI |
-| `ter-132b` | 32px 粗体 | 4K / 大屏 HiDPI |
-
 `setfont` 只在当前会话生效。确认尺寸满意后，写入永久配置：
-
 ```bash
 sudo mkdir -p /etc/vconsole.conf.d  # 一般不需要，直接编辑主文件即可
 sudo tee /etc/vconsole.conf <<'EOF'
@@ -88,37 +68,83 @@ EOF
 ```
 
 验证写入是否正确：
-
 ```bash
 cat /etc/vconsole.conf
 ```
 
-> 如果 `setfont ter-132b` 报错"找不到字体"，说明 `terminus-font` 包还未安装，先执行：
-> ```bash
-> sudo pacman -Sy --needed terminus-font
-> ```
-> 然后再重试 `setfont`。
+建议确保系统时间正常：`timedatectl status`
 
-3. 建议确保系统时间正常：`timedatectl status`。
+安装openssh, 并启动ssh服务
+```bash
+sudo pacman -S openssh
+sudo systemctl enable --now sshd
+```
 
-4. 安装 git：
+显示ip用于连接
+```bash
+ip -4 addr
+```
+
+安装 git：
+```bash
+sudo pacman -S git
+```
+
+## 创建和挂载快照使用的子卷(如果在archinstall创建了就不需要)
+btrfs的结构是在根卷(subvolid=5)下面有一系列子卷, 子卷之间也有嵌套关系
+如果挂载了一个子卷, 底下有嵌套子卷, 可以在linux文件系统访问到被嵌套的子卷, 但是在保存快照的时候不会保存这个被嵌套的子卷
+这个被嵌套的子卷也可以被单独挂载, 就和一个正常的子卷一样
+arch默认创建的所有子卷都不是嵌套的, 包括@ @home, 都是在subvolid=5下面独立存在的, 只是被挂载到linux文件系统的不同位置
+
+而所有创建一个新字卷的流程可以总结为:
+- 先挂载subvolid=5到mnt下的某一个挂载点, 因为默认subvolid=5是没有被挂载到linux文件系统的, 所以无法操作
+- 当subvolid=5被挂载到linux文件系统后, 就可以在subvolid=5下面创建一个子卷
+- 创建完后就可以取消挂载subvolid=5, 并手动先把新的子卷挂载到你希望挂载的linux文件系统位置
+- 最后为了不需要每次开机手动挂载, 需要修改/etc/fstab配置文件, 在其中填写每次开机的时候自动把什么子卷挂载到什么位置
+- 这里的配置只需要把同一个分区的其他子卷的配置复制下来, 修改其中的子卷名字, 和挂载路径的名字就可以了
+- 比如: UUID=16d49b6b-e308-4550-b116-ccf13ea44086  /.snapshots  btrfs  rw,relatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvol=@snapshots  0 0
+- 其中只需要改 /.snapshots 和 @snapshots
 
 ```bash
-sudo pacman -Sy --needed git
+lsblk -f #先使用lsblk来查看btrfs的卷的名字和uuid
+sudo mkdir -p /mnt/btrfs-top #创建空的挂载点
+sudo mount -o subvolid=5,compress=zstd:3 /dev/nvme0n1p2 /mnt/btrfs-top #挂载根卷(subvolid=5)到挂载点
+ls /mnt/btrfs-top #列出当前根卷中存在的子卷
+
+sudo btrfs subvolume create /mnt/btrfs-top/@snapshots #在挂载点的根卷下面创建一个子卷
+sudo btrfs subvolume list /mnt/btrfs-top #检查字卷是否存在
+
+sudo mkdir -p /.snapshots #创建用于挂载字卷的挂载点
+
+sudo nano /etc/fstab #在配置文件中添加新的子卷的自动挂载配置
+UUID=16d49b6b-e308-4550-b116-ccf13ea44086  /.snapshots  btrfs  rw,relatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvol=@snapshots  0 0 #替换其中的子卷名字, 和挂载路径
+
+sudo systemctl daemon-reload #挂载和验证是否挂载成功
+sudo mount -a
+findmnt /.snapshots
+
+sudo umount /mnt/btrfs-top #现在可以卸载根卷(其实在创字卷之后就可以卸载)
+
+
+## 创建和使用快照
+sudo mkdir -p /.snapshots/root /.snapshots/home #创建两个保存快照的路径, 其中root保存@的快照, home保存@home的快照
+
+SNAP="$(date +%Y%m%d-%H%M%S)" #创建临时环境变量用于命名文件名
+
+sudo btrfs subvolume snapshot -r / /.snapshots/root/name_$SNAP #创建当前root的快照, 可以修改其中的文件名
+sudo btrfs subvolume snapshot -r /home /.snapshots/home/name_$SNAP #创建当前home的快照, 可以修改其中的文件名
+
+diff -qr 快照1 快照2 #对比两个快照有什么区别
+
+sudo btrfs subvolume delete /.snapshots/root/pre-bootstrap-20260504-204146 #删除一个快照, 因为也是一个子卷, 所以不能直接入门
 ```
+
+
 
 ## 2. clone 并执行脚本
-
-先创建一个“脚本执行前”快照（用于重复测试回滚）：
-
-```bash
-sudo btrfs subvolume snapshot -r / /.snap-pre-bootstrap
-```
-
 执行脚本：
-
 ```bash
-git clone Kscii/kscii-linux
+git clone https://github.com/Kscii/kscii-linux.git
 cd kscii-linux
 sudo bash scripts/tty/bootstrap.sh
 ```
@@ -127,45 +153,12 @@ TTY 阶段脚本是英文提示，流程包括：
 
 1. 检查网络并可引导重连
 2. 一键安装包列表
+3. 自动 ensure 并启动服务：NetworkManager / sshd / bluetooth
 
-交互行为说明：
-
-- 正常情况下只会在开头确认一次（输入一次 `y`）。
-- 脚本默认自动继续执行，不会逐组反复询问。
-- 只有在出现问题时才会停止，并打印清晰的错误行号与重试命令。
-
-## 3. 常用单独脚本
-
+常用单独脚本
 - 仅重连网络：`sudo bash scripts/tty/reconnect-network.sh`
 - 仅安装包：`sudo bash scripts/tty/install-all.sh`
 
-## 4. 手动启动 SSH 并连接
-
-bootstrap 完成后，手动启动 SSH 服务：
-
-```bash
-sudo systemctl enable --now sshd
-```
-
-查看本机 IP：
-
-```bash
-ip -4 addr
-```
-
-在开发机上连接（替换 `<username>` 和 `<ip>`）：
-
-```bash
-ssh <username>@<ip>
-```
-
-## 5. 远程调试建议
-
-连接后即可在目标机上远程执行脚本。建议：
-
-1. 每次大改前先做一次 Btrfs 快照。
-2. 小步提交，方便回滚。
-3. 修改包列表后，优先用 `install-all.sh` 单独验证。
 
 如果要回到“脚本执行前”的状态，使用下面回滚流程（在 Live ISO 环境执行）：
 
@@ -175,8 +168,6 @@ sudo btrfs subvolume delete /mnt/@
 sudo btrfs subvolume snapshot /mnt/.snap-pre-bootstrap /mnt/@
 sudo umount /mnt
 ```
-
-> 说明：`@` 是常见 Btrfs 根子卷名；如果你的根子卷名称不同，请替换为实际名称。
 
 ## 6. 进入 Niri 后的中文脚本
 
@@ -192,19 +183,6 @@ bash scripts/gui/post-niri.sh
 2. 检查输入法、截图链路和常用桌面命令是否可用
 3. 给出中文下一步建议
 
-## 7. 故障排查
 
-1. 网络重连失败：先确认 NetworkManager 是否已启动
 
-```bash
-sudo systemctl status NetworkManager
-```
 
-2. SSH 无法连接：检查 sshd
-
-```bash
-sudo systemctl status sshd
-ip -4 addr
-```
-
-3. 包安装失败：可能是镜像源问题，可先手工更新镜像或重试。

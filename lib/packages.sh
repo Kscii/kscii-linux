@@ -40,7 +40,7 @@ install_group_by_name() {
 
   print_step "Install group: ${group}"
   print_info "Packages: ${pkgs[*]}"
-  pacman -S --needed "${pkgs[@]}"
+  pacman -S --needed --noconfirm "${pkgs[@]}"
 }
 
 install_all_groups_interactive() {

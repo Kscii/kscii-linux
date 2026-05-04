@@ -3,6 +3,10 @@ waybar
 fuzzel
 kitty
 firefox
+pipewire
+pipewire-pulse
+wireplumber
+pipewire-jack
 xdg-desktop-portal
 xdg-desktop-portal-gnome
 polkit-gnome
