@@ -11,47 +11,97 @@
 - 当前阶段：开发调试阶段（需要从 git 克隆脚本）
 - 非当前阶段：正式 ISO 内置安装器（后续再做）
 
+**网络栈选型：NetworkManager + 默认 backend（wpa_supplicant）**
+
+不使用 systemd-networkd，原因如下：
+
+- 本发行版面向桌面场景，NetworkManager 提供 nmtui、nmcli、nm-connection-editor 等完整工具链，与 Niri 桌面集成更好。
+- systemd-networkd 面向服务器/容器，手工管理配置文件，缺少桌面友好的交互工具。
+- NetworkManager 默认 Wi-Fi backend 是 wpa_supplicant，无需额外配置；如需换成 iwd backend，后续可单独调整，初期不做。
+
+**两阶段联网方式：**
+
+| 阶段 | 工具 | 原因 |
+|------|------|------|
+| 系统首次联网（装好之前） | iwd（`iwctl`） | 最小化 Arch 默认可用，无需额外安装 |
+| bootstrap 完成后 | NetworkManager（`nmtui` / `nmcli`） | 已安装，功能完整，后续 GUI 面板也依赖它 |
+
 ## 1. clone 之前要做什么
 
-1. 第一次联网（最小化 Arch 常用命令）。
+1. 第一次联网（bootstrap 执行之前）。
 
-有线网络（DHCP 常见场景）：
-
-```bash
-sudo systemctl enable --now NetworkManager
-nmcli device status
-```
-
-如果有线网卡状态是 disconnected，可手动启用设备（把 `<ifname>` 换成你的网卡名，例如 `enp1s0`）：
+最小化 Arch 默认有 iwd，使用 `iwctl` 进行交互式连接：
 
 ```bash
-sudo nmcli device connect <ifname>
-nmcli device status
+iwctl
 ```
 
-Wi-Fi（交互方式，推荐）：
+进入 iwctl 后依次执行（把 `wlan0` 换成你的无线网卡名，用 `device list` 查看）：
+
+```
+device list
+station wlan0 scan
+station wlan0 get-networks
+station wlan0 connect "WiFi名字"
+exit
+```
+
+有线网络不需要额外操作，插线后直接检查是否已获取 IP：
 
 ```bash
-sudo systemctl enable --now NetworkManager
-sudo nmtui
+ip -4 addr
 ```
 
-Wi-Fi（命令方式）：
-
-```bash
-nmcli device wifi list
-sudo nmcli device wifi connect "<SSID>" password "<PASSWORD>"
-```
-
-连通性测试：
+联通性验证：
 
 ```bash
 ping -c 2 archlinux.org
 ```
 
-2. 建议确保系统时间正常：`timedatectl status`。
+> **注意**：这里只是临时联网。bootstrap 完成后，后续所有联网操作统一通过 NetworkManager（`nmtui` 或 `nmcli`）管理，不再使用 iwd。
 
-3. 安装 git：
+2. 调整 TTY 字体大小（如果默认字体太小）。
+
+最小化 Arch 默认 TTY 字体可能偏小，高分屏尤为明显。先临时切换查看效果：
+
+```bash
+sudo pacman -S --needed terminus-font
+setfont ter-132b
+```
+
+`ter-132b` 是 Terminus 字体 32px 粗体版本，适合高分屏。常用候选：
+
+| 字体名 | 尺寸 | 适合场景 |
+|--------|------|----------|
+| `ter-116b` | 16px 粗体 | 普通 1080p |
+| `ter-120b` | 20px 粗体 | 1080p 高分 / 小屏 HiDPI |
+| `ter-128b` | 28px 粗体 | 2K / 小屏 HiDPI |
+| `ter-132b` | 32px 粗体 | 4K / 大屏 HiDPI |
+
+`setfont` 只在当前会话生效。确认尺寸满意后，写入永久配置：
+
+```bash
+sudo mkdir -p /etc/vconsole.conf.d  # 一般不需要，直接编辑主文件即可
+sudo tee /etc/vconsole.conf <<'EOF'
+FONT=ter-132b
+EOF
+```
+
+验证写入是否正确：
+
+```bash
+cat /etc/vconsole.conf
+```
+
+> 如果 `setfont ter-132b` 报错"找不到字体"，说明 `terminus-font` 包还未安装，先执行：
+> ```bash
+> sudo pacman -Sy --needed terminus-font
+> ```
+> 然后再重试 `setfont`。
+
+3. 建议确保系统时间正常：`timedatectl status`。
+
+4. 安装 git：
 
 ```bash
 sudo pacman -Sy --needed git

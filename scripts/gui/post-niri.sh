@@ -2,9 +2,9 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+_POST_NIRI_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/common.sh
-source "${SCRIPT_DIR}/../../lib/common.sh"
+source "${_POST_NIRI_DIR}/../../lib/common.sh"
 
 print_step "Niri 阶段后置检查"
 print_info "该脚本用于进入图形环境后的快速检查与引导。"

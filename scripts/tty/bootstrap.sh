@@ -2,15 +2,15 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+_BOOTSTRAP_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/common.sh
-source "${SCRIPT_DIR}/../../lib/common.sh"
+source "${_BOOTSTRAP_DIR}/../../lib/common.sh"
 # shellcheck source=lib/network.sh
-source "${SCRIPT_DIR}/../../lib/network.sh"
+source "${REPO_ROOT}/lib/network.sh"
 # shellcheck source=lib/packages.sh
-source "${SCRIPT_DIR}/../../lib/packages.sh"
+source "${REPO_ROOT}/lib/packages.sh"
 # shellcheck source=lib/ssh.sh
-source "${SCRIPT_DIR}/../../lib/ssh.sh"
+source "${REPO_ROOT}/lib/ssh.sh"
 
 require_root
 
