@@ -12,14 +12,20 @@ source "${REPO_ROOT}/lib/packages.sh"
 
 require_root
 
+trap 'print_error "Script stopped at line ${LINENO}."; print_info "Fix the issue above and rerun: sudo bash scripts/tty/bootstrap.sh"' ERR
+
 print_step "Bootstrap start"
 print_info "This script helps on minimal Arch in TTY phase."
 
+if ! confirm_yes_no "Run bootstrap now? (This is the only confirmation in normal flow)" yes; then
+  print_warn "Bootstrap cancelled by user."
+  exit 0
+fi
+
 if ! is_online; then
   print_warn "Network is offline."
-  if confirm_yes_no "Open reconnect helper now?" yes; then
-    interactive_reconnect_network || true
-  fi
+  print_info "Opening reconnect helper now."
+  interactive_reconnect_network
 fi
 
 if ! is_online; then
@@ -28,7 +34,7 @@ if ! is_online; then
 fi
 
 if ! install_all_groups_interactive; then
-  print_error "Package installation flow did not finish cleanly."
+  print_error "Package installation flow failed."
   exit 1
 fi
 

@@ -47,21 +47,12 @@ install_all_groups_interactive() {
   print_step "Package installation"
   print_info "This will install package groups in this order: ${PACKAGE_ORDER[*]}"
 
-  if ! confirm_yes_no "Continue package installation?" yes; then
-    print_warn "Package installation cancelled by user."
-    return 1
-  fi
-
   for group in "${PACKAGE_ORDER[@]}"; do
-    if confirm_yes_no "Install group '${group}'?" yes; then
-      if ! install_group_by_name "${group}"; then
-        print_error "Failed to install group '${group}'."
-        if ! confirm_yes_no "Continue with next groups?" no; then
-          return 1
-        fi
-      fi
-    else
-      print_warn "Skipped group '${group}'."
+    if ! install_group_by_name "${group}"; then
+      print_error "Failed while installing group '${group}'."
+      print_info "Check pacman logs: /var/log/pacman.log"
+      print_info "You can retry this group with: sudo bash scripts/tty/install-all.sh"
+      return 1
     fi
   done
 

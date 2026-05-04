@@ -12,11 +12,17 @@ source "${REPO_ROOT}/lib/packages.sh"
 
 require_root
 
+trap 'print_error "Script stopped at line ${LINENO}."; print_info "Fix the issue above and rerun: sudo bash scripts/tty/install-all.sh"' ERR
+
+if ! confirm_yes_no "Run package installation now? (This is the only confirmation in normal flow)" yes; then
+  print_warn "Package installation cancelled by user."
+  exit 0
+fi
+
 if ! is_online; then
   print_warn "Network seems offline before install."
-  if confirm_yes_no "Open reconnect helper now?" yes; then
-    interactive_reconnect_network || true
-  fi
+  print_info "Opening reconnect helper now."
+  interactive_reconnect_network
 fi
 
 if ! is_online; then
