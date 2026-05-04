@@ -9,6 +9,16 @@ wireplumber
 pipewire-jack
 xdg-desktop-portal
 xdg-desktop-portal-gnome
+xdg-desktop-portal-gtk
 polkit-gnome
 qt5-wayland
 qt6-wayland
+swaylock
+swayidle
+swaybg
+brightnessctl
+playerctl
+mako
+ttf-ibm-plex
+papirus-icon-theme
+xorg-xwayland

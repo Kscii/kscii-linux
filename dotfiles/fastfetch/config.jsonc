@@ -1,0 +1,94 @@
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/master/doc/json_schema.json",
+
+  // 侧边 Logo：由 gen-logo 生成的 TrackPoint 球形 ASCII 艺术
+  // 首次使用前请运行 gen-logo 生成文件
+  "logo": {
+    "type": "file",
+    "source": "~/.config/fastfetch/logos/trackpoint_rounder.txt",
+    "padding": {
+      "top": 2,
+      "left": 1,
+      "right": 2
+    }
+  },
+
+  "display": {
+    "separator": "  ",
+    "color": {
+      "keys":   "#E2000F",
+      "title":  "#ffffff",
+      "output": "#e0e0e0"
+    }
+  },
+
+  "modules": [
+    "break",
+    {
+      "type":   "title",
+      "format": "{user-name}@{host-name}"
+    },
+    "separator",
+    {
+      "type":     "os",
+      "key":      "OS",
+      "keyColor": "#E2000F"
+    },
+    {
+      "type":     "kernel",
+      "key":      "KER",
+      "keyColor": "#E2000F"
+    },
+    {
+      "type":     "uptime",
+      "key":      "UP",
+      "keyColor": "#E2000F"
+    },
+    {
+      "type":     "packages",
+      "key":      "PKG",
+      "format":   "{all}",
+      "keyColor": "#E2000F"
+    },
+    "break",
+    {
+      "type":     "wm",
+      "key":      "WM",
+      "keyColor": "#cc3333"
+    },
+    {
+      "type":     "shell",
+      "key":      "SH",
+      "keyColor": "#cc3333"
+    },
+    {
+      "type":     "terminal",
+      "key":      "TERM",
+      "keyColor": "#cc3333"
+    },
+    "break",
+    {
+      "type":     "cpu",
+      "key":      "CPU",
+      "keyColor": "#aa2222"
+    },
+    {
+      "type":     "memory",
+      "key":      "MEM",
+      "keyColor": "#aa2222"
+    },
+    {
+      "type":     "display",
+      "key":      "RES",
+      "format":   "{width}x{height}@{refresh-rate}Hz",
+      "keyColor": "#aa2222"
+    },
+    {
+      "type":     "disk",
+      "key":      "DISK",
+      "keyColor": "#aa2222"
+    },
+    "break",
+    "colors"
+  ]
+}

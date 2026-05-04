@@ -1,0 +1,48 @@
+# ThinkPad Engineering Edition — mako 通知守护进程配置
+
+# ── 外观 ──────────────────────────────────────────────────────────────────
+font=IBM Plex Sans 11
+background-color=#000000
+text-color=#ffffff
+border-color=#E2000F
+border-size=2
+border-radius=0
+
+outer-margin=6
+margin=6
+padding=10
+
+# ── 布局 ──────────────────────────────────────────────────────────────────
+width=360
+height=200
+anchor=top-right
+layer=overlay
+sort=-time
+
+# ── 超时 ──────────────────────────────────────────────────────────────────
+default-timeout=5000
+ignore-timeout=0
+
+# ── 行为 ──────────────────────────────────────────────────────────────────
+max-visible=5
+on-button-up=exec makoctl invoke
+
+# ── 图标 ──────────────────────────────────────────────────────────────────
+icons=1
+max-icon-size=32
+icon-location=left
+
+# ── 优先级覆盖 ────────────────────────────────────────────────────────────
+[urgency=low]
+border-color=#333333
+default-timeout=3000
+
+[urgency=normal]
+border-color=#E2000F
+default-timeout=5000
+
+[urgency=critical]
+border-color=#ff0000
+background-color=#1a0000
+text-color=#ffffff
+default-timeout=0

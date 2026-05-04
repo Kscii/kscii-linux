@@ -1,0 +1,65 @@
+[Default Applications]
+# 文本与代码
+text/plain=nvim-kitty.desktop
+text/x-script.python=nvim-kitty.desktop
+text/x-shellscript=nvim-kitty.desktop
+text/x-csrc=nvim-kitty.desktop
+text/x-chdr=nvim-kitty.desktop
+text/xml=nvim-kitty.desktop
+text/x-yaml=nvim-kitty.desktop
+text/markdown=nvim-kitty.desktop
+application/json=nvim-kitty.desktop
+application/x-shellscript=nvim-kitty.desktop
+
+# 网页
+text/html=firefox.desktop
+x-scheme-handler/http=firefox.desktop
+x-scheme-handler/https=firefox.desktop
+x-scheme-handler/ftp=firefox.desktop
+
+# PDF 及文档
+application/pdf=firefox.desktop
+
+# 图片
+image/png=imv.desktop
+image/jpeg=imv.desktop
+image/gif=imv.desktop
+image/webp=imv.desktop
+image/bmp=imv.desktop
+image/tiff=imv.desktop
+image/svg+xml=imv.desktop
+
+# 视频
+video/mp4=mpv.desktop
+video/x-matroska=mpv.desktop
+video/webm=mpv.desktop
+video/avi=mpv.desktop
+video/quicktime=mpv.desktop
+video/x-msvideo=mpv.desktop
+
+# 音频
+audio/mpeg=mpv.desktop
+audio/ogg=mpv.desktop
+audio/flac=mpv.desktop
+audio/x-wav=mpv.desktop
+
+# 压缩包
+application/zip=archive-kitty.desktop
+application/x-tar=archive-kitty.desktop
+application/gzip=archive-kitty.desktop
+application/x-bzip2=archive-kitty.desktop
+application/x-xz=archive-kitty.desktop
+application/x-7z-compressed=archive-kitty.desktop
+application/x-rar=archive-kitty.desktop
+application/zstd=archive-kitty.desktop
+
+[Added Associations]
+text/plain=nvim-kitty.desktop;
+image/png=imv.desktop;
+image/jpeg=imv.desktop;
+video/mp4=mpv.desktop;
+video/x-matroska=mpv.desktop;
+application/pdf=firefox.desktop;
+application/zip=archive-kitty.desktop;
+x-scheme-handler/http=firefox.desktop;
+x-scheme-handler/https=firefox.desktop;

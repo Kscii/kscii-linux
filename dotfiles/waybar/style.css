@@ -1,0 +1,155 @@
+/* ThinkPad Engineering Edition — Waybar 样式表
+   配色：#000000（背景）/ #E2000F（ThinkPad 红）/ #ffffff（文字）
+   字体：IBM Plex Sans（标签）、IBM Plex Mono（数字/状态）
+*/
+
+* {
+    font-family: "IBM Plex Sans", "IBM Plex Mono", sans-serif;
+    font-size: 13px;
+    border: none;
+    border-radius: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+}
+
+window#waybar {
+    background-color: #000000;
+    color: #ffffff;
+    border-bottom: 1px solid #E2000F;
+    transition: none;
+}
+
+/* ── 左 / 中 / 右 容器 ── */
+.modules-left,
+.modules-center,
+.modules-right {
+    padding: 0 4px;
+}
+
+/* ── 工作区 ── */
+#workspaces {
+    padding: 0 4px;
+}
+
+#workspaces button {
+    font-family: "IBM Plex Mono";
+    font-size: 12px;
+    padding: 2px 8px;
+    color: #666666;
+    background: transparent;
+    border-bottom: 2px solid transparent;
+    transition: none;
+}
+
+#workspaces button.active,
+#workspaces button.focused {
+    color: #E2000F;
+    border-bottom: 2px solid #E2000F;
+}
+
+#workspaces button.urgent {
+    color: #E2000F;
+    background: #1a0000;
+}
+
+#workspaces button:hover {
+    color: #ffffff;
+    background: #111111;
+}
+
+/* ── 时钟 ── */
+#clock {
+    font-family: "IBM Plex Mono";
+    font-size: 13px;
+    color: #ffffff;
+    padding: 0 12px;
+}
+
+/* ── 右侧所有模块共享基础样式 ── */
+#cpu,
+#memory,
+#temperature,
+#network,
+#bluetooth,
+#custom-ime,
+#battery,
+#tray {
+    font-family: "IBM Plex Mono";
+    font-size: 12px;
+    color: #cccccc;
+    padding: 0 8px;
+    border-left: 1px solid #1a1a1a;
+}
+
+/* ── CPU ── */
+#cpu.warning  { color: #E2000F; }
+#cpu.critical { color: #ff0000; font-weight: bold; }
+
+/* ── 内存 ── */
+#memory.warning  { color: #E2000F; }
+#memory.critical { color: #ff0000; font-weight: bold; }
+
+/* ── 温度 ── */
+#temperature.critical {
+    color: #ff0000;
+    font-weight: bold;
+}
+
+/* ── 网络 ── */
+#network {
+    color: #cccccc;
+}
+#network.disconnected {
+    color: #555555;
+}
+
+/* ── 蓝牙 ── */
+#bluetooth {
+    color: #cccccc;
+}
+#bluetooth.disabled {
+    color: #333333;
+}
+
+/* ── 输入法状态 ── */
+#custom-ime {
+    font-family: "IBM Plex Sans";
+    font-size: 13px;
+    color: #ffffff;
+    padding: 0 10px;
+}
+
+#custom-ime.zh {
+    color: #E2000F;
+    font-weight: bold;
+}
+
+#custom-ime.en {
+    color: #888888;
+}
+
+/* ── 电池 ── */
+#battery {
+    color: #cccccc;
+}
+#battery.good     { color: #cccccc; }
+#battery.warning  { color: #E2000F; }
+#battery.critical { color: #ff0000; font-weight: bold; }
+#battery.charging { color: #00cc44; }
+#battery.plugged  { color: #00cc44; }
+
+/* ── 系统托盘 ── */
+#tray {
+    border-left: 1px solid #1a1a1a;
+    padding: 0 6px;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+    background-color: #1a0000;
+}

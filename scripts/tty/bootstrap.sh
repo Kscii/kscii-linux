@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# ThinkPad Engineering Edition — TTY 引导脚本
+# 在最小化 Arch Linux TTY 阶段以 root 身份运行。
+# 用法：sudo bash scripts/tty/bootstrap.sh
 
 set -euo pipefail
 
@@ -12,38 +15,83 @@ source "${REPO_ROOT}/lib/packages.sh"
 
 require_root
 
-trap 'print_error "Script stopped at line ${LINENO}."; print_info "Fix the issue above and rerun: sudo bash scripts/tty/bootstrap.sh"' ERR
+trap 'print_error "脚本在第 ${LINENO} 行停止。"; print_info "修复上述问题后重新运行：sudo bash scripts/tty/bootstrap.sh"' ERR
 
-print_step "Bootstrap start"
-print_info "This script helps on minimal Arch in TTY phase."
+print_step "引导开始"
+print_info "本脚本在最小化 Arch Linux TTY 阶段运行。"
 
-if ! confirm_yes_no "Run bootstrap now? (This is the only confirmation in normal flow)" yes; then
-  print_warn "Bootstrap cancelled by user."
+if ! confirm_yes_no "现在开始引导？（这是整个流程中唯一的确认提示）" yes; then
+  print_warn "用户取消引导。"
   exit 0
 fi
 
 if ! is_online; then
-  print_warn "Network is offline."
-  print_info "Opening reconnect helper now."
+  print_warn "网络离线。"
+  print_info "正在打开网络重连向导..."
   interactive_reconnect_network
 fi
 
 if ! is_online; then
-  print_error "Network is still offline. Stop here."
+  print_error "网络仍然离线，停止执行。"
   exit 1
 fi
 
 if ! install_all_groups_interactive; then
-  print_error "Package installation flow failed."
+  print_error "软件包安装流程失败。"
   exit 1
 fi
 
-print_step "Ensure system services"
+print_step "确保系统服务已启用"
 ensure_service_enabled_running NetworkManager
 ensure_service_enabled_running sshd
 ensure_service_enabled_running bluetooth
 
-print_step "Bootstrap done"
-print_info "Core services ensured: NetworkManager, sshd, bluetooth."
-print_info "Next step after you enter Niri:"
+# ── 安装 paru AUR 助手 ────────────────────────────────────────────────────
+print_step "安装 paru AUR 助手"
+REGULAR_USER="${SUDO_USER:-}"
+
+if [[ -z "$REGULAR_USER" ]]; then
+  print_warn "SUDO_USER 未设置 — 跳过 paru 安装"
+  print_info "配置完成后，以普通用户身份手动安装 paru："
+  print_info "  git clone https://aur.archlinux.org/paru-bin.git && cd paru-bin && makepkg -si"
+elif command -v paru &>/dev/null; then
+  print_info "paru 已安装 — 跳过"
+else
+  print_info "以用户 ${REGULAR_USER} 身份编译 paru-bin..."
+  # 临时 NOPASSWD 条目，使 makepkg 能以无密码方式运行 pacman -U
+  echo "${REGULAR_USER} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/99-paru-build
+  runuser -l "${REGULAR_USER}" -c "
+    set -euo pipefail
+    cd /tmp
+    rm -rf paru-bin
+    git clone https://aur.archlinux.org/paru-bin.git paru-bin
+    cd paru-bin
+    makepkg -si --noconfirm
+  "
+  rm -f /etc/sudoers.d/99-paru-build
+  print_info "paru 已安装"
+fi
+
+# ── 安装 AUR 软件包 ───────────────────────────────────────────────────────
+print_step "安装 AUR 软件包"
+AUR_LIST="${REPO_ROOT}/packages/aur.txt"
+
+if [[ -z "$REGULAR_USER" ]]; then
+  print_warn "SUDO_USER 未设置 — 跳过 AUR 软件包"
+  print_info "请手动安装：paru -S rime-ice-git"
+elif ! command -v paru &>/dev/null; then
+  print_warn "找不到 paru — 跳过 AUR 软件包"
+  print_info "请先安装 paru，然后运行：paru -S rime-ice-git"
+elif [[ -f "$AUR_LIST" ]]; then
+  mapfile -t _aur_pkgs < <(grep -v '^#' "$AUR_LIST" | grep -v '^[[:space:]]*$')
+  if [[ ${#_aur_pkgs[@]} -gt 0 ]]; then
+    print_info "安装 AUR 软件包：${_aur_pkgs[*]}"
+    runuser -l "${REGULAR_USER}" -c "paru -S --noconfirm ${_aur_pkgs[*]}"
+    print_info "AUR 软件包已安装"
+  fi
+fi
+
+print_step "引导完成"
+print_info "系统服务已启用：NetworkManager、sshd、bluetooth。"
+print_info "进入 niri 会话后，执行下一步："
 printf "  bash %s/scripts/gui/post-niri.sh\n" "${REPO_ROOT}"

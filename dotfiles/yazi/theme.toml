@@ -1,0 +1,116 @@
+# ThinkPad Engineering Edition — yazi 主题
+# 纯黑背景，ThinkPad 红（#E2000F）强调色
+
+[mgr]
+cwd = { fg = "#e0e0e0" }
+
+find_keyword  = { fg = "#E2000F", bold = true, italic = true, underline = true }
+find_position = { fg = "#E2000F", bold = true, italic = true }
+
+marker_copied   = { fg = "#555555", bg = "#555555" }
+marker_cut      = { fg = "#999999", bg = "#999999" }
+marker_marked   = { fg = "#E2000F", bg = "#E2000F" }
+marker_selected = { fg = "#cc3333", bg = "#cc3333" }
+
+count_copied   = { fg = "#000000", bg = "#555555" }
+count_cut      = { fg = "#000000", bg = "#999999" }
+count_selected = { fg = "#000000", bg = "#cc3333" }
+
+border_symbol = "│"
+border_style  = { fg = "#333333" }
+
+
+[tabs]
+active   = { fg = "#000000", bg = "#E2000F", bold = true }
+inactive = { fg = "#888888", bg = "#1a1a1a" }
+
+
+[mode]
+normal_main = { bg = "#E2000F", fg = "#000000", bold = true }
+normal_alt  = { bg = "#1a1a1a", fg = "#888888" }
+select_main = { bg = "#cc3333", fg = "#000000", bold = true }
+select_alt  = { bg = "#1a1a1a", fg = "#888888" }
+unset_main  = { bg = "#444444", fg = "#000000", bold = true }
+unset_alt   = { bg = "#1a1a1a", fg = "#888888" }
+
+
+[status]
+sep_left  = { open = "🭁", close = "🭠" }
+sep_right = { open = "🭁", close = "🭠" }
+
+progress_label  = { bold = true }
+progress_normal = { fg = "#E2000F", bg = "#1a1a1a" }
+progress_error  = { fg = "#ff6666", bg = "#1a1a1a" }
+
+perm_type  = { fg = "#666666" }
+perm_write = { fg = "#cc3333" }
+perm_read  = { fg = "#E2000F" }
+perm_exec  = { fg = "#ff4444" }
+perm_sep   = { fg = "#333333" }
+
+
+[pick]
+border   = { fg = "#E2000F" }
+active   = { fg = "#E2000F", bold = true }
+inactive = {}
+
+
+[input]
+border = { fg = "#E2000F" }
+value  = { fg = "#e0e0e0" }
+
+
+[cmp]
+border = { fg = "#E2000F", bg = "#1a0000" }
+
+
+[tasks]
+border  = { fg = "#333333" }
+title   = {}
+hovered = { fg = "#E2000F", underline = true }
+
+
+[which]
+cols            = 3
+mask            = { bg = "#1a1a1a" }
+cand            = { fg = "#E2000F" }
+rest            = { fg = "#555555" }
+desc            = { fg = "#e0e0e0" }
+separator       = " ▶ "
+separator_style = { fg = "#555555" }
+
+
+[help]
+on     = { fg = "#e0e0e0" }
+run    = { fg = "#e0e0e0" }
+footer = { fg = "#000000", bg = "#E2000F" }
+
+
+[notify]
+title_info  = { fg = "#888888" }
+title_warn  = { fg = "#cc3333" }
+title_error = { fg = "#E2000F" }
+
+
+[filetype]
+rules = [
+    # Images
+    { mime = "image/*", fg = "#cc3333" },
+
+    # Media
+    { mime = "{audio,video}/*", fg = "#E2000F" },
+
+    # Archives
+    { mime = "application/{zip,rar,7z*,tar,gzip,xz,zstd,bzip*,lzma,compress,archive,cpio,arj,xar,ms-cab*}", fg = "#aa2222" },
+
+    # Documents
+    { mime = "application/{pdf,doc,rtf,odt}", fg = "#888888" },
+
+    # Special files
+    { url = "*", is = "orphan", bg = "#660000" },
+    { url = "*", is = "exec",   fg = "#ff4444" },
+
+    # Fallback
+    { url = "*/", fg = "#E2000F" },
+    { url = "*",  fg = "#e0e0e0" },
+]

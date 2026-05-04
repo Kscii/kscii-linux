@@ -1,0 +1,84 @@
+# ThinkPad Engineering Edition — btop 颜色主题
+# 纯黑背景，ThinkPad 红（#E2000F）强调色
+
+# 主背景 — 空字符串表示使用终端背景
+theme[main_bg]=""
+
+# 主前景文字
+theme[main_fg]="#e0e0e0"
+
+# 标题文字
+theme[title]="#ffffff"
+
+# 高亮文字（ThinkPad 红）
+theme[hi_fg]="#E2000F"
+
+# 选中项背景 / 前景
+theme[selected_bg]="#E2000F"
+theme[selected_fg]="#000000"
+
+# 非活动 / 禁用文字
+theme[inactive_fg]="#555555"
+
+# 图表坐标轴 / 图例文字
+theme[graph_text]="#888888"
+
+# 仪表 / 进度条背景
+theme[meter_bg]="#1a1a1a"
+
+# 进程列表杂项信息
+theme[proc_misc]="#777777"
+
+# 各面板边框颜色
+theme[cpu_box]="#E2000F"
+theme[mem_box]="#cc3333"
+theme[net_box]="#aa2222"
+theme[proc_box]="#881111"
+
+# 分隔线
+theme[div_line]="#333333"
+
+# 温度渐变：冷蓝 → 白 → ThinkPad 红
+theme[temp_start]="#0066cc"
+theme[temp_mid]="#cccccc"
+theme[temp_end]="#E2000F"
+
+# CPU 使用率渐变：近黑 → 深红 → ThinkPad 红
+theme[cpu_start]="#1a0000"
+theme[cpu_mid]="#880000"
+theme[cpu_end]="#E2000F"
+
+# 空闲内存渐变：深绿
+theme[free_start]="#001a00"
+theme[free_mid]="#004400"
+theme[free_end]="#007700"
+
+# 缓存内存渐变：深青
+theme[cached_start]="#001010"
+theme[cached_mid]="#003333"
+theme[cached_end]="#005555"
+
+# 缓冲区渐变：深紫
+theme[buffers_start]="#0a0010"
+theme[buffers_mid]="#1a0033"
+theme[buffers_end]="#330055"
+
+# 已用内存渐变：深红
+theme[used_start]="#1a0000"
+theme[used_mid]="#550000"
+theme[used_end]="#880000"
+
+# 网络下行渐变：深绿
+theme[download_start]="#001500"
+theme[download_mid]="#004400"
+theme[download_end]="#008800"
+
+# 网络上行渐变：深红
+theme[upload_start]="#150000"
+theme[upload_mid]="#440000"
+theme[upload_end]="#880000"
+
+# 进程 CPU 使用率渐变
+theme[proc_start]="#1a0000"
+theme[proc_mid]="#660000"
+theme[proc_end]="#E2000F"

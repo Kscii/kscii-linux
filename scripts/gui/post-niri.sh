@@ -1,37 +1,23 @@
 #!/usr/bin/env bash
+# ThinkPad Engineering Edition — 首次登录桌面配置脚本
+# 在首次进入 niri 会话后运行一次。
+# 由 scripts/tty/bootstrap.sh 末尾的提示引导执行。
+#
+# 完成的工作：
+#   1. 部署所有点文件（符号链接到 ~/.config）
+#   2. 安装桌面脚本到 ~/.local/bin
+#   3. 应用 GTK 深色主题 + IBM Plex 字体
+#   4. 启用用户音频服务（PipeWire）
+#   5. 重建 Rime 输入法数据库
+#   6. 生成 fastfetch TrackPoint 球形 Logo
 
 set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
-_POST_NIRI_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=lib/common.sh
-source "${_POST_NIRI_DIR}/../../lib/common.sh"
+echo ""
+echo "═══════════════════════════════════════════════════════════"
+echo "  ThinkPad Engineering Edition — 桌面配置"
+echo "═══════════════════════════════════════════════════════════"
+echo ""
 
-print_step "Niri 阶段后置检查"
-print_info "该脚本用于进入图形环境后的快速检查与引导。"
-
-if [[ -z "${WAYLAND_DISPLAY:-}" && -z "${DISPLAY:-}" ]]; then
-  print_warn "当前似乎不在图形会话中。建议进入 Niri 后再运行。"
-fi
-
-if has_cmd nm-connection-editor; then
-  if confirm_yes_no "是否打开网络面板 nm-connection-editor？" yes; then
-    nm-connection-editor >/dev/null 2>&1 &
-    print_info "网络面板已启动。"
-  fi
-else
-  print_warn "未找到 nm-connection-editor。"
-fi
-
-print_step "组件检查"
-for cmd in fcitx5 fcitx5-configtool grim slurp wl-copy satty swappy firefox kitty; do
-  if has_cmd "${cmd}"; then
-    printf "[OK] %s\n" "${cmd}"
-  else
-    printf "[MISS] %s\n" "${cmd}"
-  fi
-done
-
-print_step "下一步建议"
-printf "1) 配置输入法：启动 fcitx5-configtool\n"
-printf "2) 验证门户：在 Firefox 里测试文件选择器与截图\n"
-printf "3) 截图链路自测：grim + slurp + satty/swappy\n"
+exec bash "$REPO_ROOT/scripts/desktop/setup.sh" "$@"

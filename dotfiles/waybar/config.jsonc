@@ -1,0 +1,137 @@
+{
+    // ThinkPad Engineering Edition — waybar 配置
+    // 配色：#000000 背景 + #E2000F（ThinkPad 红）点缀
+    // 字体：IBM Plex Sans / IBM Plex Mono
+
+    "layer": "top",
+    "position": "top",
+    "height": 28,
+    "spacing": 0,
+    "exclusive": true,
+
+    "modules-left": [
+        "niri/workspaces"
+    ],
+
+    "modules-center": [
+        "clock"
+    ],
+
+    "modules-right": [
+        "cpu",
+        "memory",
+        "temperature",
+        "network",
+        "bluetooth",
+        "custom/ime",
+        "battery",
+        "tray"
+    ],
+
+    // ── 工作区 ────────────────────────────────────────────────────────────
+    "niri/workspaces": {
+        "format": "{index}",
+        "on-click": "activate"
+    },
+
+    // ── 时钟 ──────────────────────────────────────────────────────────────
+    "clock": {
+        "format": "{:%Y年%m月%d日  %A  %H:%M:%S}",
+        "tooltip-format": "<tt>{calendar}</tt>",
+        "calendar": {
+            "mode": "year",
+            "weeks-pos": "left",
+            "format": {
+                "today": "<span color='#E2000F'><b>{}</b></span>"
+            }
+        },
+        "interval": 1
+    },
+
+    // ── CPU ───────────────────────────────────────────────────────────────
+    "cpu": {
+        "format": " {usage}%",
+        "tooltip": true,
+        "interval": 2,
+        "states": {
+            "warning": 70,
+            "critical": 90
+        }
+    },
+
+    // ── 内存 ──────────────────────────────────────────────────────────────
+    "memory": {
+        "format": " {percentage}%",
+        "tooltip-format": "已用：{used:0.1f}G / 总计：{total:0.1f}G\nSwap：{swapUsed:0.1f}G / {swapTotal:0.1f}G",
+        "interval": 3,
+        "states": {
+            "warning": 70,
+            "critical": 90
+        }
+    },
+
+    // ── 温度 ──────────────────────────────────────────────────────────────
+    // 通过 hwmon 读取 CPU 封装温度；请根据实机调整 hwmon-path-abs
+    "temperature": {
+        "hwmon-path-abs": "/sys/devices/platform/coretemp.0/hwmon",
+        "input-filename": "temp1_input",
+        "critical-threshold": 90,
+        "format": " {temperatureC}°C",
+        "tooltip-format": "CPU：{temperatureC}°C",
+        "interval": 3
+    },
+
+    // ── 网络 ──────────────────────────────────────────────────────────────
+    "network": {
+        "format-wifi": " {essid}",
+        "format-ethernet": " eth",
+        "format-disconnected": " --",
+        "format-linked": " {ifname}",
+        "tooltip-format-wifi": "{essid}（信号 {signalStrength}%）\n{ipaddr}/{cidr}",
+        "tooltip-format-ethernet": "{ifname}\n{ipaddr}/{cidr}",
+        "on-click": "kitty --title '网络管理' -e nmtui",
+        "interval": 5
+    },
+
+    // ── 蓝牙 ──────────────────────────────────────────────────────────────
+    "bluetooth": {
+        "format": "",
+        "format-connected": " {num_connections}",
+        "format-disabled": "",
+        "tooltip-format": "{controller_alias} [{controller_address}]",
+        "tooltip-format-connected": "{controller_alias}\n{device_enumerate}",
+        "tooltip-format-enumerate-connected": "{device_alias} [{device_address}]",
+        "on-click": "kitty --title '蓝牙' -e bluetui",
+        "interval": 5
+    },
+
+    // ── 输入法状态 ────────────────────────────────────────────────────────
+    "custom/ime": {
+        "exec": "~/.local/bin/waybar-ime.sh",
+        "return-type": "json",
+        "interval": 1,
+        "on-click": "fcitx5-remote -t",
+        "tooltip": true
+    },
+
+    // ── 电池 ──────────────────────────────────────────────────────────────
+    "battery": {
+        "states": {
+            "good": 80,
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "{icon} {capacity}%",
+        "format-charging": " {capacity}%",
+        "format-plugged": " {capacity}%",
+        "format-icons": ["", "", "", "", ""],
+        "tooltip-format": "{timeTo}\n{power:.1f}W",
+        "interval": 10
+    },
+
+    // ── 系统托盘 ──────────────────────────────────────────────────────────
+    "tray": {
+        "spacing": 6,
+        "show-passive-items": true
+    }
+}

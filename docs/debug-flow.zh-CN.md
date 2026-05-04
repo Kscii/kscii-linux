@@ -169,20 +169,3 @@ sudo btrfs subvolume snapshot /mnt/.snap-pre-bootstrap /mnt/@
 sudo umount /mnt
 ```
 
-## 6. 进入 Niri 后的中文脚本
-
-进入图形环境后执行：
-
-```bash
-bash scripts/gui/post-niri.sh
-```
-
-该脚本会：
-
-1. 可选打开网络面板（`nm-connection-editor`）
-2. 检查输入法、截图链路和常用桌面命令是否可用
-3. 给出中文下一步建议
-
-
-
-

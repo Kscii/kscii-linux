@@ -1,0 +1,53 @@
+# ThinkPad Engineering Edition — swaylock 锁屏配置
+# OLED 纯黑锁屏，ThinkPad 红解锁环指示器
+
+# 背景：纯黑
+color=000000
+
+# 解锁环（ThinkPad 红）
+ring-color=E2000F
+ring-clear-color=E2000F
+ring-ver-color=E2000F
+ring-wrong-color=ff0000
+
+# 环内部颜色
+inside-color=000000
+inside-clear-color=000000
+inside-ver-color=111111
+inside-wrong-color=1a0000
+
+# 环与内部的分隔线
+line-color=000000
+line-clear-color=000000
+line-ver-color=000000
+line-wrong-color=000000
+separator-color=00000000
+
+# 文字
+text-color=ffffff
+text-clear-color=ffffff
+text-ver-color=E2000F
+text-wrong-color=ff0000
+
+# 按键高亮：输入时闪烁红色
+key-hl-color=E2000F
+bs-hl-color=ff0000
+
+# 环尺寸
+indicator-radius=60
+indicator-thickness=6
+indicator-x-position=0
+indicator-y-position=0
+
+# 字体
+font=IBM Plex Mono
+
+# 行为
+ignore-empty-password
+show-failed-attempts
+daemonize
+
+# 注：启用 ASCII 艺术锁屏壁纸，请先运行：
+#   ~/.local/bin/niri-lock.sh --generate
+# 然后取消注释下一行：
+# image=~/.config/swaylock/lockscreen.png

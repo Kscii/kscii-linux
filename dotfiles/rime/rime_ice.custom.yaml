@@ -1,0 +1,12 @@
+# 雾凇拼音自定义配置
+# 部署路径：~/.local/share/fcitx5/rime/rime_ice.custom.yaml
+
+patch:
+  # 水平候选词窗口（fcitx5-rime 读取此提示）
+  "style/horizontal": true
+
+  # 每页 6 个候选词（与 default.custom.yaml 重复，保留以便阅读）
+  "menu/page_size": 6
+
+  # 禁用模糊拼音（严格模式 — 可选，删除此行以重新启用）
+  # "speller/fuzzy_pinyin": false

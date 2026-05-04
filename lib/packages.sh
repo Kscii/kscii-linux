@@ -28,34 +28,34 @@ install_group_by_name() {
   local pkgs=()
 
   if [[ ! -f "${file_path}" ]]; then
-    print_warn "Group file not found: ${file_path}"
+    print_warn "软件包组文件不存在：${file_path}"
     return 1
   fi
 
   read_package_file_to_array "${file_path}" pkgs
   if [[ "${#pkgs[@]}" -eq 0 ]]; then
-    print_warn "No packages in group ${group}."
+    print_warn "软件包组 ${group} 中没有软件包。"
     return 0
   fi
 
-  print_step "Install group: ${group}"
-  print_info "Packages: ${pkgs[*]}"
+  print_step "安装软件包组：${group}"
+  print_info "软件包：${pkgs[*]}"
   pacman -S --needed --noconfirm "${pkgs[@]}"
 }
 
 install_all_groups_interactive() {
-  print_step "Package installation"
-  print_info "This will install package groups in this order: ${PACKAGE_ORDER[*]}"
+  print_step "软件包安装"
+  print_info "将按以下顺序安装各软件包组：${PACKAGE_ORDER[*]}"
 
   for group in "${PACKAGE_ORDER[@]}"; do
     if ! install_group_by_name "${group}"; then
-      print_error "Failed while installing group '${group}'."
-      print_info "Check pacman logs: /var/log/pacman.log"
-      print_info "You can retry this group with: sudo bash scripts/tty/install-all.sh"
+      print_error "安装软件包组 '${group}' 时失败。"
+      print_info "查看 pacman 日志：/var/log/pacman.log"
+      print_info "可通过以下命令重试该组：sudo bash scripts/tty/install-all.sh"
       return 1
     fi
   done
 
-  print_info "Package installation flow finished."
+  print_info "软件包安装流程完成。"
   return 0
 }

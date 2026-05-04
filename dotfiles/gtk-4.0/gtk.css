@@ -1,0 +1,30 @@
+/* ThinkPad Engineering Edition — GTK4 / LibAdwaita 深色背景覆盖
+ *
+ * 两种方案可选，取消注释其中一个，注释掉另一个：
+ *
+ * 方案 A（当前激活）：纯黑 — OLED 省电最优，对比度最高。
+ * 方案 B：舒适深色 — 对 LCD 屏幕更友好。
+ *
+ * 切换方案后：退出并重新登录以完全生效。
+ */
+
+/* ── 方案 A：纯黑（OLED 最优，当前激活）─────────────────────────────────── */
+:root {
+    --window-bg-color:    #000000;
+    --view-bg-color:      #000000;
+    --dialog-bg-color:    #0a0a0a;
+    --popover-bg-color:   #0a0a0a;
+    --headerbar-bg-color: #000000;
+    --sidebar-bg-color:   #000000;
+}
+
+/* ── 方案 B：舒适深色 — 取消注释以激活 ──────────────────────────────────────
+:root {
+    --window-bg-color:    #1c1c1c;
+    --view-bg-color:      #1c1c1c;
+    --dialog-bg-color:    #242424;
+    --popover-bg-color:   #242424;
+    --headerbar-bg-color: #1c1c1c;
+    --sidebar-bg-color:   #1c1c1c;
+}
+────────────────────────────────────────────────────────────────────────────── */

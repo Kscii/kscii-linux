@@ -1,0 +1,123 @@
+# ThinkPad Engineering Edition — Starship Powerline 提示符
+# 配色方案：#000000 背景 / #E2000F 红色 / #1a1a1a 深色段 / #ffffff 文字
+
+"$schema" = "https://starship.rs/config-schema.json"
+
+# ── 提示符布局 ─────────────────────────────────────────────────────────────
+# 左侧：[目录][git][语言标识] → 右侧：[耗时]
+# 新行：❯（成功时红色，错误时亮红色）
+
+format = """
+[](fg:#E2000F)\
+$directory\
+[](fg:#E2000F bg:#1a1a1a)\
+$git_branch\
+$git_status\
+$rust\
+$python\
+$nodejs\
+$golang\
+$java\
+[](fg:#1a1a1a)\
+$fill\
+$cmd_duration\
+$line_break\
+$character"""
+
+# ── 目录 ───────────────────────────────────────────────────────────────────
+[directory]
+style = "bg:#E2000F fg:#000000 bold"
+format = "[ $path ]($style)"
+truncation_length = 4
+truncation_symbol = "…/"
+read_only = " 󰌾"
+read_only_style = "bg:#E2000F fg:#000000"
+
+[directory.substitutions]
+"Documents" = "󰈙"
+"Downloads" = "󰇚"
+"Pictures"  = "󰋩"
+"Projects"  = "󰲋"
+
+# ── Git ────────────────────────────────────────────────────────────────────
+[git_branch]
+style = "bg:#1a1a1a fg:#E2000F"
+format = "[ $symbol$branch ]($style)"
+symbol = " "
+truncation_length = 20
+
+[git_status]
+style = "bg:#1a1a1a fg:#cccccc"
+format = "[$all_status$ahead_behind ]($style)"
+conflicted = "="
+ahead      = "⇡${count}"
+behind     = "⇣${count}"
+diverged   = "⇕⇡${ahead_count}⇣${behind_count}"
+up_to_date = "✓"
+untracked  = "?"
+stashed    = "$"
+modified   = "!"
+staged     = "+"
+renamed    = "»"
+deleted    = "✘"
+
+# ── 语言标识 ───────────────────────────────────────────────────────────────
+[rust]
+style = "bg:#1a1a1a fg:#cccccc"
+format = "[ $symbol$version ]($style)"
+symbol = " "
+
+[python]
+style = "bg:#1a1a1a fg:#cccccc"
+format = "[ $symbol$version ]($style)"
+symbol = " "
+
+[nodejs]
+style = "bg:#1a1a1a fg:#cccccc"
+format = "[ $symbol$version ]($style)"
+symbol = " "
+
+[golang]
+style = "bg:#1a1a1a fg:#cccccc"
+format = "[ $symbol$version ]($style)"
+symbol = " "
+
+[java]
+style = "bg:#1a1a1a fg:#cccccc"
+format = "[ $symbol$version ]($style)"
+symbol = " "
+
+# ── 填充（右对齐耗时）─────────────────────────────────────────────────────
+[fill]
+symbol = " "
+
+# ── 命令耗时 ───────────────────────────────────────────────────────────────
+[cmd_duration]
+style = "fg:#666666"
+format = "[ 󱎫 $duration]($style)"
+min_time = 2000
+show_milliseconds = false
+
+# ── 提示符字符 ─────────────────────────────────────────────────────────────
+[character]
+success_symbol = "[❯](bold fg:#E2000F)"
+error_symbol   = "[❯](bold fg:#ff0000)"
+vimcmd_symbol  = "[❮](bold fg:#E2000F)"
+
+# ── 杂项 ───────────────────────────────────────────────────────────────────
+[username]
+show_always = false
+style_user  = "bg:#E2000F fg:#000000"
+style_root  = "bg:#ff0000 fg:#ffffff bold"
+format      = "[$user]($style)"
+
+[hostname]
+ssh_only  = true
+style     = "fg:#E2000F"
+format    = "[@$hostname]($style) "
+
+[time]
+disabled = true
+
+[line_break]
+disabled = false

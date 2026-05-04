@@ -12,21 +12,21 @@ source "${REPO_ROOT}/lib/packages.sh"
 
 require_root
 
-trap 'print_error "Script stopped at line ${LINENO}."; print_info "Fix the issue above and rerun: sudo bash scripts/tty/install-all.sh"' ERR
+trap 'print_error "脚本在第 ${LINENO} 行停止。"; print_info "修复上述问题后重新运行：sudo bash scripts/tty/install-all.sh"' ERR
 
-if ! confirm_yes_no "Run package installation now? (This is the only confirmation in normal flow)" yes; then
-  print_warn "Package installation cancelled by user."
+if ! confirm_yes_no "现在开始安装软件包？（这是整个流程中唯一的确认提示）" yes; then
+  print_warn "用户取消软件包安装。"
   exit 0
 fi
 
 if ! is_online; then
-  print_warn "Network seems offline before install."
-  print_info "Opening reconnect helper now."
+  print_warn "安装前检测到网络离线。"
+  print_info "正在打开网络重连向导..."
   interactive_reconnect_network
 fi
 
 if ! is_online; then
-  print_error "Still offline. Please connect network first."
+  print_error "网络仍然离线，请先连接网络。"
   exit 1
 fi
 

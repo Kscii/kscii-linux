@@ -11,3 +11,5 @@ gdu
 yazi
 lazygit
 fastfetch
+atool
+figlet

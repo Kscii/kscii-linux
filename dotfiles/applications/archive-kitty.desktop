@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Archive Viewer (Kitty)
+GenericName=Archive Manager
+Comment=Browse archive contents with atool in a Kitty terminal
+Exec=kitty --hold atool --list %f
+Terminal=false
+Type=Application
+MimeType=application/zip;application/x-tar;application/gzip;application/x-bzip2;application/x-xz;application/x-7z-compressed;application/x-rar;application/zstd;
+Categories=Archiving;FileManager;
+StartupNotify=false
