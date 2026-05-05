@@ -169,3 +169,10 @@ sudo btrfs subvolume snapshot /mnt/.snap-pre-bootstrap /mnt/@
 sudo umount /mnt
 ```
 
+
+需要把快捷键清单放到super+shift+/ 里面, 替换niri默认的快捷键清单, 并使用中文
+
+我需要配置在终端还有tty中的自动补全功能都可以忽略大小写, 也就是如果一个路径首字母是大写, 我输入小写, 点击tab之后也可以识别并补全出来.
+
+如果有时间的话可以把我原本在ubuntu上的一个允许安装拼音补全的包也在发行版里面配置好
+

@@ -214,7 +214,7 @@ binds {
     // ── 启动器 ────────────────────────────────────────────────────────────
     Alt+Space   hotkey-overlay-title="应用启动器: fuzzel"      { spawn "fuzzel"; }
     Mod+O    repeat=false hotkey-overlay-title="概览"          { toggle-overview; }
-    Mod+Tab  repeat=false                                      { toggle-overview; }
+    Mod+Tab  repeat=false hotkey-overlay-title="上一个窗口"    { focus-window-previous; }
 
     // ── 窗口切换器（Alt+Tab — 近似 GNOME 风格）───────────────────────────
     // 单次：切换到上一个窗口；0.75 秒内双击：显示窗口选择器

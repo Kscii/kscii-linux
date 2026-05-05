@@ -19,6 +19,8 @@
 
 详细中文流程见：`docs/debug-flow.zh-CN.md`
 
+第一次 Phase 1 实机验证建议配合阅读：`docs/phase1-first-test.md`
+
 快速流程：
 
 1. 在目标设备上先保证网络可用。

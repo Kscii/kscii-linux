@@ -3,3 +3,4 @@ slurp
 wl-clipboard
 satty
 swappy
+wf-recorder

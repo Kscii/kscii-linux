@@ -3,6 +3,8 @@ waybar
 fuzzel
 kitty
 firefox
+thunar
+thunar-archive-plugin
 pipewire
 pipewire-pulse
 wireplumber
@@ -19,6 +21,9 @@ swaybg
 brightnessctl
 playerctl
 mako
+libnotify
+imagemagick
+adw-gtk-theme
 ttf-ibm-plex
 papirus-icon-theme
 xorg-xwayland

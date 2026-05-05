@@ -106,8 +106,10 @@ link_dotfile "xdg-desktop-portal/portals.conf" \
 info "部署 fontconfig..."
 link_dotfile "fontconfig/fonts.conf" "$HOME/.config/fontconfig/fonts.conf"
 
-# ── GTK4 深色背景覆盖 ─────────────────────────────────────────────────────
-info "部署 gtk-4.0 覆盖..."
+# ── GTK 主题与 GTK4 覆盖 ──────────────────────────────────────────────────
+info "部署 GTK 主题与覆盖..."
+link_dotfile "gtk-3.0/settings.ini" "$HOME/.config/gtk-3.0/settings.ini"
+link_dotfile "gtk-4.0/settings.ini" "$HOME/.config/gtk-4.0/settings.ini"
 link_dotfile "gtk-4.0/gtk.css" "$HOME/.config/gtk-4.0/gtk.css"
 
 # ── btop 系统监控 ─────────────────────────────────────────────────────────

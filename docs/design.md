@@ -117,13 +117,13 @@ bash scripts/gui/post-niri.sh
 
 | 文件                     | 内容                                          |
 |--------------------------|-----------------------------------------------|
-| `packages/base.txt`      | base、linux、基础命令行工具                   |
-| `packages/desktop.txt`   | niri、waybar、kitty、Wayland 组件栈           |
+| `packages/base.txt`      | 基础命令行工具、python 运行时                 |
+| `packages/desktop.txt`   | niri、waybar、kitty、GTK/Thunar/主题组件栈    |
 | `packages/editors.txt`   | neovim 及相关插件                             |
-| `packages/tui.txt`       | fish、starship、yazi、btop、atool、figlet…    |
-| `packages/input.txt`     | fcitx5、Rime、IBM Plex 字体、Noto CJK        |
+| `packages/tui.txt`       | fish、starship、yazi、btop、jq、bluetui…      |
+| `packages/input.txt`     | fcitx5、Rime、IBM Plex、Nerd Font、Noto CJK   |
 | `packages/network.txt`   | NetworkManager、SSH、VPN                      |
-| `packages/screenshot.txt`| grim、slurp、wl-clipboard、wl-screenrec       |
+| `packages/screenshot.txt`| grim、slurp、wl-clipboard、wf-recorder        |
 | `packages/aur.txt`       | rime-ice-git（通过 paru 安装）                |
 
 ---
@@ -144,7 +144,8 @@ dotfiles/
 ├── rime/{default,rime_ice}.custom.yaml → ~/.local/share/fcitx5/rime/
 ├── xdg-desktop-portal/portals.conf     → ~/.config/xdg-desktop-portal/
 ├── fontconfig/fonts.conf               → ~/.config/fontconfig/fonts.conf
-├── gtk-4.0/gtk.css                     → ~/.config/gtk-4.0/gtk.css
+├── gtk-3.0/settings.ini                → ~/.config/gtk-3.0/settings.ini
+├── gtk-4.0/{settings.ini,gtk.css}      → ~/.config/gtk-4.0/
 ├── btop/{btop.conf,themes/thinkpad.theme}
 ├── yazi/theme.toml                     → ~/.config/yazi/
 ├── fastfetch/config.jsonc              → ~/.config/fastfetch/
@@ -186,7 +187,7 @@ Phase 1 为**个人可用的日常驱动状态**，以下所有条目需全部�
 - [x] fish + starship Shell 提示符
 - [x] fuzzel 应用启动器
 - [x] Alt+Tab 窗口切换器（焦点历史守护 + 0.75 秒双击检测）
-- [x] 截图（grim/slurp）+ 屏幕录制（wl-screenrec）
+- [x] 截图（grim/slurp）+ 屏幕录制（wf-recorder）
 - [x] 默认应用关联（mimeapps.list）
 - [x] 字体优先级（fontconfig：IBM Plex → Noto CJK 回退）
 - [x] GTK4 深色背景覆盖（gtk.css，提供两个可切换方案）
