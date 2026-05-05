@@ -1,4 +1,5 @@
 
+
  …/kscii-linux   main !✓                                                   
 ❯ niri msg outputs 
 Output "Samsung Display Corp. ATNA40HQ10-0  0x0000003F" (eDP-1)
