@@ -1,0 +1,19 @@
+
+ …/kscii-linux   main !✓                                                   
+❯ niri msg outputs 
+Output "Samsung Display Corp. ATNA40HQ10-0  0x0000003F" (eDP-1)
+  Current mode: 2880x1800 @ 60.000 Hz (preferred)
+  Variable refresh rate: supported, disabled
+  Physical size: 300x190 mm
+  Logical position: 0, 0
+  Logical size: 1645x1028
+  Scale: 1.75
+  Transform: normal
+  Available modes:
+    2880x1800@60.000 (current, preferred)
+    2880x1800@120.000
+
+
+ …/kscii-linux   main !✓                                                   
+❯ echo "$NIRI_SOCKET" 
+/run/user/1000/niri.wayland-1.59675.sock
