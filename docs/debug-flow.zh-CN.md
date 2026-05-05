@@ -154,6 +154,8 @@ TTY 阶段脚本是英文提示，流程包括：
 1. 检查网络并可引导重连
 2. 一键安装包列表
 3. 自动 ensure 并启动服务：NetworkManager / sshd / bluetooth
+4. 从 AUR 源码构建 paru（避免 `paru-bin` 与最新 `libalpm` 不兼容）
+5. 用 `paru -S --skipreview` 安装 `rime-ice-git`（避免 PKGBUILD review 阶段的 OSC 转义序列泄漏到 fish）
 
 常用单独脚本
 - 仅重连网络：`sudo bash scripts/tty/reconnect-network.sh`
@@ -175,4 +177,3 @@ sudo umount /mnt
 我需要配置在终端还有tty中的自动补全功能都可以忽略大小写, 也就是如果一个路径首字母是大写, 我输入小写, 点击tab之后也可以识别并补全出来.
 
 如果有时间的话可以把我原本在ubuntu上的一个允许安装拼音补全的包也在发行版里面配置好
-

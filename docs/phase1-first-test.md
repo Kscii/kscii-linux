@@ -144,17 +144,19 @@ bash scripts/gui/post-niri.sh
 
 ### 1. 校准显示输出名
 
-查看输出：
+如果 `post-niri.sh` 是在 `niri` 会话内执行的，脚本会自动运行 `niri msg outputs` 并把结果写入 `~/.config/niri/config.kdl` 的托管输出区块，同时记录到 `~/.config/niri/detected-output.txt`。
+
+如需手动核对，再运行：
 
 ```bash
 niri msg outputs
 ```
 
-按结果修改 [dotfiles/niri/config.kdl](/home/kscii/Codes/kscii-linux/dotfiles/niri/config.kdl:70) 中的输出段。
+按结果检查 [dotfiles/niri/config.kdl](/home/kscii/Codes/kscii-linux/dotfiles/niri/config.kdl:70) 中的输出段是否正确。
 
 ### 2. 校准分辨率和缩放
 
-仍然在同一个输出段里调整：
+通常会随自动探测一起写入；如果手感不对，再在同一个输出段里调整：
 
 - `mode`
 - `scale`

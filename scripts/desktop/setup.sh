@@ -22,6 +22,84 @@ ok()    { echo -e "${GRN}[✔]${RST} $*"; }
 warn()  { echo -e "${RED}[!]${RST} $*"; }
 run()   { if [[ $DRY_RUN -eq 1 ]]; then echo "  (dry) $*"; else "$@"; fi; }
 
+current_login_shell() {
+    getent passwd "$USER" | cut -d: -f7
+}
+
+update_managed_niri_output_block() {
+    local config_path="$1"
+    local output_name="$2"
+    local output_mode="$3"
+    local output_scale="$4"
+    local output_transform="$5"
+    local tmp
+
+    tmp="$(mktemp)"
+    awk -v name="$output_name" -v mode="$output_mode" -v scale="$output_scale" -v transform="$output_transform" '
+        BEGIN { in_block = 0 }
+        /AUTO-DETECTED OUTPUT START/ {
+            print
+            print "output \"" name "\" {"
+            print "    mode \"" mode "\""
+            print "    scale " scale
+            print "    transform \"" transform "\""
+            print "}"
+            in_block = 1
+            next
+        }
+        /AUTO-DETECTED OUTPUT END/ {
+            in_block = 0
+            print
+            next
+        }
+        !in_block { print }
+    ' "$config_path" > "$tmp"
+
+    mv "$tmp" "$config_path"
+}
+
+auto_configure_niri_output() {
+    local config_path="$HOME/.config/niri/config.kdl"
+    local detect_log="$HOME/.config/niri/detected-output.txt"
+    local outputs output_name output_mode output_scale output_transform
+
+    [[ $DRY_RUN -eq 1 ]] && return 0
+
+    if [[ -z "${NIRI_SOCKET:-}" ]]; then
+        warn "未检测到 NIRI_SOCKET — 跳过自动写入显示输出配置"
+        return 0
+    fi
+
+    if ! command -v niri &>/dev/null; then
+        warn "找不到 niri 命令 — 跳过自动写入显示输出配置"
+        return 0
+    fi
+
+    outputs="$(niri msg outputs 2>/dev/null || true)"
+    if [[ -z "$outputs" ]]; then
+        warn "无法读取当前 niri 输出信息 — 跳过自动写入显示输出配置"
+        return 0
+    fi
+
+    output_name="$(printf '%s\n' "$outputs" | sed -n '1s/.*(\([^)]*\)).*/\1/p')"
+    output_mode="$(printf '%s\n' "$outputs" | sed -n 's/^  Current mode: \([^ ]*\) @ \([^ ]*\) Hz.*/\1@\2/p')"
+    output_scale="$(printf '%s\n' "$outputs" | sed -n 's/^  Scale: \(.*\)$/\1/p')"
+    output_transform="$(printf '%s\n' "$outputs" | sed -n 's/^  Transform: \(.*\)$/\1/p')"
+
+    {
+        printf 'NIRI_SOCKET=%s\n' "${NIRI_SOCKET}"
+        printf '%s\n' "$outputs"
+    } > "$detect_log"
+
+    if [[ -z "$output_name" || -z "$output_mode" || -z "$output_scale" || -z "$output_transform" ]]; then
+        warn "输出信息解析不完整，已记录到：$detect_log"
+        return 0
+    fi
+
+    update_managed_niri_output_block "$config_path" "$output_name" "$output_mode" "$output_scale" "$output_transform"
+    ok "已自动写入 niri 输出配置：$output_name / $output_mode / scale $output_scale / $output_transform"
+}
+
 # ── 创建点文件符号链接 ────────────────────────────────────────────────────
 # link_dotfile <点文件相对路径（相对于 dotfiles/）> <目标路径>
 link_dotfile() {
@@ -56,6 +134,7 @@ echo ""
 # ── niri 合成器 ───────────────────────────────────────────────────────────
 info "部署 niri 配置..."
 link_dotfile "niri/config.kdl" "$HOME/.config/niri/config.kdl"
+auto_configure_niri_output
 
 # ── waybar 状态栏 ─────────────────────────────────────────────────────────
 info "部署 waybar..."
@@ -156,14 +235,19 @@ if command -v python3 &>/dev/null; then
 fi
 
 # ── 设置 fish 为默认 shell ────────────────────────────────────────────────
-if [[ "$SHELL" != "$(command -v fish)" ]]; then
+if [[ "$(current_login_shell)" != "$(command -v fish)" ]]; then
     info "将 fish 设为默认 shell..."
     if command -v fish &>/dev/null; then
-        run chsh -s "$(command -v fish)"
-        ok "默认 shell 已设置为 fish"
+        if run chsh -s "$(command -v fish)"; then
+            ok "默认 shell 已设置为 fish"
+        else
+            warn "fish 默认 shell 设置失败，请手动重试：chsh -s $(command -v fish)"
+        fi
     else
         warn "找不到 fish — 跳过 shell 切换"
     fi
+else
+    ok "默认 shell 已经是 fish"
 fi
 
 # ── 用户音频服务 ──────────────────────────────────────────────────────────
@@ -207,8 +291,8 @@ echo ""
 ok "配置完成。"
 echo ""
 echo "  后续步骤："
-echo "  1. 在 ~/.config/niri/config.kdl 中取消注释并填写您的显示器输出名称"
-echo "     （在 niri 会话内运行 'niri msg outputs' 查询）"
+echo "  1. 确认 ~/.config/niri/config.kdl 中的输出配置是否已按当前机器自动写入"
+echo "     （检测记录位于 ~/.config/niri/detected-output.txt）"
 echo "  2. 生成锁屏壁纸（球形 Logo）："
 echo "     niri-lock.sh --generate"
 echo "  3. 退出并重新登录到 niri 会话。"

@@ -53,19 +53,25 @@ REGULAR_USER="${SUDO_USER:-}"
 if [[ -z "$REGULAR_USER" ]]; then
   print_warn "SUDO_USER 未设置 — 跳过 paru 安装"
   print_info "配置完成后，以普通用户身份手动安装 paru："
-  print_info "  git clone https://aur.archlinux.org/paru-bin.git && cd paru-bin && makepkg -si"
-elif command -v paru &>/dev/null; then
-  print_info "paru 已安装 — 跳过"
+  print_info "  sudo pacman -Syu && sudo pacman -S --needed base-devel git rust"
+  print_info "  git clone https://aur.archlinux.org/paru.git && cd paru && makepkg -si"
+elif command -v paru &>/dev/null && paru --version >/dev/null 2>&1; then
+  print_info "paru 已安装且可用 — 跳过"
 else
-  print_info "以用户 ${REGULAR_USER} 身份编译 paru-bin..."
+  print_info "准备以源码方式构建 paru（兼容最新 libalpm）..."
+  pacman -S --needed --noconfirm rust
+
+  # 已安装但损坏的 paru/paru-bin 往往会与新版包冲突，先清理。
+  pacman -Rns --noconfirm paru paru-debug paru-bin paru-bin-debug 2>/dev/null || true
+
   # 临时 NOPASSWD 条目，使 makepkg 能以无密码方式运行 pacman -U
   echo "${REGULAR_USER} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/99-paru-build
   runuser -l "${REGULAR_USER}" -c "
     set -euo pipefail
     cd /tmp
-    rm -rf paru-bin
-    git clone https://aur.archlinux.org/paru-bin.git paru-bin
-    cd paru-bin
+    rm -rf paru
+    git clone https://aur.archlinux.org/paru.git paru
+    cd paru
     makepkg -si --noconfirm
   "
   rm -f /etc/sudoers.d/99-paru-build
@@ -78,15 +84,15 @@ AUR_LIST="${REPO_ROOT}/packages/aur.txt"
 
 if [[ -z "$REGULAR_USER" ]]; then
   print_warn "SUDO_USER 未设置 — 跳过 AUR 软件包"
-  print_info "请手动安装：paru -S rime-ice-git"
-elif ! command -v paru &>/dev/null; then
+  print_info "请手动安装：paru -S --skipreview rime-ice-git"
+elif ! command -v paru &>/dev/null || ! paru --version >/dev/null 2>&1; then
   print_warn "找不到 paru — 跳过 AUR 软件包"
-  print_info "请先安装 paru，然后运行：paru -S rime-ice-git"
+  print_info "请先安装 paru，然后运行：paru -S --skipreview rime-ice-git"
 elif [[ -f "$AUR_LIST" ]]; then
   mapfile -t _aur_pkgs < <(grep -v '^#' "$AUR_LIST" | grep -v '^[[:space:]]*$')
   if [[ ${#_aur_pkgs[@]} -gt 0 ]]; then
-    print_info "安装 AUR 软件包：${_aur_pkgs[*]}"
-    runuser -l "${REGULAR_USER}" -c "paru -S --noconfirm ${_aur_pkgs[*]}"
+    print_info "安装 AUR 软件包（跳过 PKGBUILD review，避免 OSC 转义序列泄漏）：${_aur_pkgs[*]}"
+    runuser -l "${REGULAR_USER}" -c "paru -S --skipreview --noconfirm ${_aur_pkgs[*]}"
     print_info "AUR 软件包已安装"
   fi
 fi

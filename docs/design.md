@@ -164,8 +164,8 @@ dotfiles/
 
 | 配置项                   | 如何配置                                                   |
 |--------------------------|------------------------------------------------------------|
-| 显示器输出名称           | 在 niri 会话内运行 `niri msg outputs`，然后编辑 `config.kdl` |
-| 分辨率与缩放比例         | 同上；当前配置假设 `2880x1800 @ scale 1.5`                 |
+| 显示器输出名称           | 首次运行 `post-niri.sh` 时自动探测；也可手动运行 `niri msg outputs` |
+| 分辨率与缩放比例         | 首次运行 `post-niri.sh` 时自动写入；必要时再手动调整           |
 | TrackPoint 滚动按键编号  | 假设为 `274`（中键）；用 `libinput debug-events` 验证      |
 | waybar 温度传感器路径    | 在 `waybar/config.jsonc` 中设置 `hwmon-path-abs`           |
 | 锁屏图片分辨率           | 编辑 `scripts/desktop/niri-lock.sh` 中的 `DISPLAY_SIZE`   |
