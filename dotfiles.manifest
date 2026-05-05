@@ -1,0 +1,49 @@
+# kscii-linux managed files
+#
+# Format:
+#   link <repo-path> => <system-path>
+#   copy <repo-path> => <system-path>
+#
+# link: repo file is the source of truth after apply; system path becomes a symlink.
+# copy: repo file is copied to the system path; useful for executable tools.
+
+link dotfiles/niri/config.kdl => ~/.config/niri/config.kdl
+link dotfiles/waybar/config.jsonc => ~/.config/waybar/config.jsonc
+link dotfiles/waybar/style.css => ~/.config/waybar/style.css
+link dotfiles/kitty/kitty.conf => ~/.config/kitty/kitty.conf
+link dotfiles/mako/config => ~/.config/mako/config
+link dotfiles/fcitx5/profile => ~/.config/fcitx5/profile
+link dotfiles/fcitx5/config => ~/.config/fcitx5/config
+link dotfiles/fcitx5/conf/classicui.conf => ~/.config/fcitx5/conf/classicui.conf
+link dotfiles/fcitx5/themes/ThinkPad/theme.conf => ~/.local/share/fcitx5/themes/ThinkPad/theme.conf
+link dotfiles/rime/default.custom.yaml => ~/.local/share/fcitx5/rime/default.custom.yaml
+link dotfiles/rime/rime_ice.custom.yaml => ~/.local/share/fcitx5/rime/rime_ice.custom.yaml
+link dotfiles/swaylock/config => ~/.config/swaylock/config
+link dotfiles/fish/config.fish => ~/.config/fish/config.fish
+link dotfiles/starship.toml => ~/.config/starship.toml
+link dotfiles/fuzzel/fuzzel.ini => ~/.config/fuzzel/fuzzel.ini
+link dotfiles/xdg-desktop-portal/portals.conf => ~/.config/xdg-desktop-portal/portals.conf
+link dotfiles/fontconfig/fonts.conf => ~/.config/fontconfig/fonts.conf
+link dotfiles/gtk-3.0/settings.ini => ~/.config/gtk-3.0/settings.ini
+link dotfiles/gtk-4.0/settings.ini => ~/.config/gtk-4.0/settings.ini
+link dotfiles/gtk-4.0/gtk.css => ~/.config/gtk-4.0/gtk.css
+link dotfiles/btop/btop.conf => ~/.config/btop/btop.conf
+link dotfiles/btop/themes/thinkpad.theme => ~/.config/btop/themes/thinkpad.theme
+link dotfiles/yazi/theme.toml => ~/.config/yazi/theme.toml
+link dotfiles/fastfetch/config.jsonc => ~/.config/fastfetch/config.jsonc
+link dotfiles/mimeapps.list => ~/.config/mimeapps.list
+link dotfiles/applications/nvim-kitty.desktop => ~/.local/share/applications/nvim-kitty.desktop
+link dotfiles/applications/archive-kitty.desktop => ~/.local/share/applications/archive-kitty.desktop
+link dotfiles/xdg-terminals.list => ~/.config/xdg-terminals.list
+
+copy scripts/desktop/niri-focus-daemon.sh => ~/.local/bin/niri-focus-daemon.sh
+copy scripts/desktop/niri-alt-tab.sh => ~/.local/bin/niri-alt-tab.sh
+copy scripts/desktop/niri-window-picker.sh => ~/.local/bin/niri-window-picker.sh
+copy scripts/desktop/niri-lock.sh => ~/.local/bin/niri-lock.sh
+copy scripts/desktop/niri-record.sh => ~/.local/bin/niri-record.sh
+copy scripts/desktop/swayidle-start.sh => ~/.local/bin/swayidle-start.sh
+copy scripts/desktop/waybar-ime.sh => ~/.local/bin/waybar-ime.sh
+copy scripts/desktop/volume.sh => ~/.local/bin/volume.sh
+copy scripts/desktop/gen-logo.py => ~/.local/bin/gen-logo
+copy scripts/dotctl => ~/.local/bin/dotctl
+copy tools/bin/steam-niri => ~/.local/bin/steam-niri

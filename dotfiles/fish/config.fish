@@ -60,3 +60,15 @@ end
 # ── 欢迎语 ────────────────────────────────────────────────────────────────
 # 禁用默认的 fish 欢迎信息
 set fish_greeting ""
+
+
+# ── 别名 ────────────────────────────────────────────────────────────────
+# browsh使用特定配置启动，防止快捷键冲突
+alias browsh='kitty --config ~/.config/kitty/browsh.conf -e browsh'
+alias browsh-gui='browsh --firefox.with-gui'
+# niri
+alias niri-exit='niri msg action quit'
+alias niri-load='niri msg action load-config-file'
+alias niri-check='niri validate -c ~/.config/niri/config.kdl'
+# wifi
+alias wifi='nmtui'

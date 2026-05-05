@@ -24,6 +24,7 @@
         "network",
         "bluetooth",
         "custom/ime",
+        "pulseaudio",
         "battery",
         "tray"
     ],
@@ -112,6 +113,20 @@
         "interval": 1,
         "on-click": "fcitx5-remote -t",
         "tooltip": true
+    },
+
+    // ── 音量 ──────────────────────────────────────────────────────────────
+    "pulseaudio": {
+        "format": "VOL {volume}%",
+        "format-muted": "VOL mute",
+        "format-source": "MIC {volume}%",
+        "format-source-muted": "MIC mute",
+        "tooltip-format": "{desc}\n{volume}%",
+        "on-click": "~/.local/bin/volume.sh mute",
+        "on-click-right": "~/.local/bin/volume.sh mic-mute",
+        "on-scroll-up": "~/.local/bin/volume.sh up",
+        "on-scroll-down": "~/.local/bin/volume.sh down",
+        "scroll-step": 5
     },
 
     // ── 电池 ──────────────────────────────────────────────────────────────

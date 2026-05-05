@@ -140,7 +140,8 @@ dotfiles/
 ├── fuzzel/fuzzel.ini                   → ~/.config/fuzzel/
 ├── starship.toml                       → ~/.config/starship.toml
 ├── fish/config.fish                    → ~/.config/fish/
-├── fcitx5/{profile,conf/}              → ~/.config/fcitx5/
+├── fcitx5/{profile,config,conf/}       → ~/.config/fcitx5/
+├── fcitx5/themes/ThinkPad/theme.conf   → ~/.local/share/fcitx5/themes/ThinkPad/
 ├── rime/{default,rime_ice}.custom.yaml → ~/.local/share/fcitx5/rime/
 ├── xdg-desktop-portal/portals.conf     → ~/.config/xdg-desktop-portal/
 ├── fontconfig/fonts.conf               → ~/.config/fontconfig/fonts.conf

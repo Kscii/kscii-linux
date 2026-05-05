@@ -166,10 +166,10 @@
 
 | 快捷键 | 功能 |
 |--------|------|
-| `XF86AudioRaiseVolume` | 音量 +5% |
-| `XF86AudioLowerVolume` | 音量 -5% |
-| `XF86AudioMute` | 切换静音 |
-| `XF86AudioMicMute` | 切换麦克风静音 |
+| `XF86AudioRaiseVolume` | 音量 +5%，刷新 waybar 并显示通知 |
+| `XF86AudioLowerVolume` | 音量 -5%，刷新 waybar 并显示通知 |
+| `XF86AudioMute` | 切换静音，刷新 waybar 并显示通知 |
+| `XF86AudioMicMute` | 切换麦克风静音并显示通知 |
 | `XF86AudioPlay` | 播放/暂停 |
 | `XF86AudioStop` | 停止播放 |
 | `XF86AudioPrev` | 上一曲 |
@@ -185,6 +185,8 @@
 |--------|------|
 | `Ctrl+Shift+C` | 复制 |
 | `Ctrl+Shift+V` | 粘贴 |
+| `Ctrl+Shift+A` | 复制当前终端窗口文本到剪贴板 |
+| `Ctrl+Shift+F` | 搜索当前终端窗口 scrollback |
 | `Ctrl+Shift+T` | 新建标签页 |
 | `Ctrl+Shift+W` | 关闭标签页 |
 | `Ctrl+Shift+L` | 下一个标签页 |

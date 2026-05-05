@@ -1,0 +1,444 @@
+#!/usr/bin/env bash
+# Manage kscii-linux dotfiles and local tools.
+
+set -euo pipefail
+
+find_repo_root() {
+    local script_dir candidate
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+    for candidate in \
+        "${KSCII_LINUX_REPO:-}" \
+        "$script_dir/.." \
+        "$PWD" \
+        "$HOME/Codes/kscii-linux"
+    do
+        [[ -z "$candidate" ]] && continue
+        candidate="$(cd "$candidate" 2>/dev/null && pwd || true)"
+        if [[ -f "$candidate/dotfiles.manifest" && -d "$candidate/.git" ]]; then
+            printf '%s\n' "$candidate"
+            return 0
+        fi
+    done
+
+    if command -v git >/dev/null 2>&1; then
+        candidate="$(git -C "$PWD" rev-parse --show-toplevel 2>/dev/null || true)"
+        if [[ -n "$candidate" && -f "$candidate/dotfiles.manifest" ]]; then
+            printf '%s\n' "$candidate"
+            return 0
+        fi
+    fi
+
+    return 1
+}
+
+if ! REPO_ROOT="$(find_repo_root)"; then
+    printf '[BAD] 找不到 kscii-linux 仓库。请进入仓库目录，或设置 KSCII_LINUX_REPO=/path/to/kscii-linux。\n' >&2
+    exit 1
+fi
+
+MANIFEST="$REPO_ROOT/dotfiles.manifest"
+BACKUP_DIR="$REPO_ROOT/.backups/dotctl"
+DRY_RUN=0
+ASSUME_YES=0
+FILTER=""
+
+RED='\033[1;31m'; GRN='\033[1;32m'; YLW='\033[1;33m'; BLU='\033[1;34m'; RST='\033[0m'
+info() { printf "${BLU}[*]${RST} %s\n" "$*"; }
+ok() { printf "${GRN}[OK]${RST} %s\n" "$*"; }
+warn() { printf "${YLW}[WARN]${RST} %s\n" "$*"; }
+bad() { printf "${RED}[BAD]${RST} %s\n" "$*"; }
+
+usage() {
+    cat <<'EOF'
+Usage:
+  scripts/dotctl status [filter]
+  scripts/dotctl apply [--dry-run] [--yes] [filter]
+  scripts/dotctl capture [--dry-run] [--yes] [filter]
+  scripts/dotctl track-tool [--dry-run] [--yes] <name-or-path>
+  scripts/dotctl git-diff [git diff args...]
+  scripts/dotctl git-status [git status args...]
+
+Commands:
+  status    Show whether managed files are linked, copied, detached, or missing.
+  apply     Restore system files from this repository.
+  capture   Overwrite repository files from the current system state.
+  track-tool
+            Add a ~/.local/bin tool to tools/bin and register it in the manifest.
+  git-diff  Run git diff inside the dotfiles repository.
+  git-status
+            Run git status inside the dotfiles repository.
+
+Rules:
+  link entries are restored as symlinks.
+  copy entries are restored by copying the repo file to the system path.
+  capture always treats the system path as the source of truth.
+
+Examples:
+  scripts/dotctl status niri
+  scripts/dotctl capture --dry-run
+  scripts/dotctl capture --yes niri/config.kdl
+  scripts/dotctl apply --yes steam-niri
+  scripts/dotctl track-tool --yes my-helper
+  scripts/dotctl git-diff
+  scripts/dotctl git-status --short
+EOF
+}
+
+repo_path() {
+    printf '%s/%s' "$REPO_ROOT" "$1"
+}
+
+expand_path() {
+    local path="$1"
+    case "$path" in
+        \~) printf '%s' "$HOME" ;;
+        \~/*) printf '%s/%s' "$HOME" "${path#\~/}" ;;
+        /*) printf '%s' "$path" ;;
+        *) printf '%s/%s' "$REPO_ROOT" "$path" ;;
+    esac
+}
+
+run() {
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+        printf '  (dry) %q' "$1"
+        shift
+        local arg
+        for arg in "$@"; do
+            printf ' %q' "$arg"
+        done
+        printf '\n'
+    else
+        "$@"
+    fi
+}
+
+confirm_write() {
+    local action="$1"
+    if [[ "$ASSUME_YES" -eq 1 || "$DRY_RUN" -eq 1 ]]; then
+        return 0
+    fi
+
+    warn "$action 需要写入文件。请加 --yes 执行，或先用 --dry-run 预览。"
+    return 1
+}
+
+backup_path() {
+    local path="$1"
+    [[ -e "$path" || -L "$path" ]] || return 0
+
+    local rel stamp dst
+    rel="${path#$REPO_ROOT/}"
+    [[ "$rel" == "$path" ]] && rel="${path#$HOME/}"
+    stamp="$(date +%Y%m%d_%H%M%S)"
+    dst="$BACKUP_DIR/$stamp/$rel"
+
+    run mkdir -p "$(dirname "$dst")"
+    run cp -a "$path" "$dst"
+}
+
+same_file_content() {
+    local a="$1"
+    local b="$2"
+    [[ -e "$a" && -e "$b" ]] && cmp -s "$a" "$b"
+}
+
+same_executable_mode() {
+    local a="$1"
+    local b="$2"
+    if [[ -x "$a" ]]; then
+        [[ -x "$b" ]]
+    else
+        [[ ! -x "$b" ]]
+    fi
+}
+
+matches_filter() {
+    local mode="$1"
+    local src_rel="$2"
+    local dst="$3"
+    [[ -z "$FILTER" ]] && return 0
+    [[ "$mode" == *"$FILTER"* || "$src_rel" == *"$FILTER"* || "$dst" == *"$FILTER"* ]]
+}
+
+read_manifest() {
+    local callback="$1"
+    local line mode src_rel dst pattern
+    pattern='^(link|copy)[[:space:]]+([^[:space:]].*)[[:space:]]+=>[[:space:]]+([^[:space:]].*)$'
+
+    if [[ ! -f "$MANIFEST" ]]; then
+        bad "找不到 manifest: $MANIFEST"
+        exit 1
+    fi
+
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        line="${line%%#*}"
+        [[ -z "${line//[[:space:]]/}" ]] && continue
+
+        if [[ "$line" =~ $pattern ]]; then
+            mode="${BASH_REMATCH[1]}"
+            src_rel="${BASH_REMATCH[2]}"
+            dst="${BASH_REMATCH[3]}"
+            src_rel="${src_rel%"${src_rel##*[![:space:]]}"}"
+            dst="${dst%"${dst##*[![:space:]]}"}"
+            if matches_filter "$mode" "$src_rel" "$dst"; then
+                "$callback" "$mode" "$src_rel" "$dst"
+            fi
+        else
+            bad "manifest 行格式错误: $line"
+            exit 1
+        fi
+    done < "$MANIFEST"
+}
+
+status_entry() {
+    local mode="$1"
+    local src_rel="$2"
+    local dst_spec="$3"
+    local src dst link_target
+    src="$(repo_path "$src_rel")"
+    dst="$(expand_path "$dst_spec")"
+
+    if [[ "$mode" == "link" ]]; then
+        if [[ -L "$dst" ]]; then
+            link_target="$(readlink "$dst")"
+            if [[ "$link_target" == "$src" ]]; then
+                ok "link $dst_spec -> $src_rel"
+            else
+                bad "link $dst_spec points to $link_target, expected $src"
+            fi
+        elif [[ -e "$dst" ]]; then
+            if same_file_content "$src" "$dst"; then
+                warn "detached-same $dst_spec matches $src_rel"
+            else
+                bad "detached-diff $dst_spec differs from $src_rel"
+            fi
+        else
+            bad "missing $dst_spec"
+        fi
+    else
+        if [[ ! -e "$src" ]]; then
+            bad "repo-missing $src_rel"
+        elif [[ ! -e "$dst" ]]; then
+            bad "missing $dst_spec"
+        elif same_file_content "$src" "$dst" && same_executable_mode "$src" "$dst"; then
+            ok "copy $dst_spec matches $src_rel"
+        elif same_file_content "$src" "$dst"; then
+            bad "copy-mode-diff $dst_spec mode differs from $src_rel"
+        else
+            bad "copy-diff $dst_spec differs from $src_rel"
+        fi
+    fi
+}
+
+apply_entry() {
+    local mode="$1"
+    local src_rel="$2"
+    local dst_spec="$3"
+    local src dst
+    src="$(repo_path "$src_rel")"
+    dst="$(expand_path "$dst_spec")"
+
+    if [[ ! -e "$src" ]]; then
+        warn "跳过，仓库源不存在: $src_rel"
+        return 0
+    fi
+
+    if [[ "$mode" == "link" ]]; then
+        if [[ -L "$dst" && "$(readlink "$dst")" == "$src" ]]; then
+            ok "已链接: $dst_spec"
+            return 0
+        fi
+
+        confirm_write "apply $dst_spec" || return 1
+        [[ -e "$dst" || -L "$dst" ]] && backup_path "$dst"
+        run mkdir -p "$(dirname "$dst")"
+        run ln -sfn "$src" "$dst"
+        ok "已恢复链接: $dst_spec -> $src_rel"
+    else
+        if same_file_content "$src" "$dst" && same_executable_mode "$src" "$dst"; then
+            ok "已同步: $dst_spec"
+            return 0
+        fi
+
+        if same_file_content "$src" "$dst"; then
+            confirm_write "apply mode $dst_spec" || return 1
+            if [[ -x "$src" ]]; then
+                run chmod +x "$dst"
+            else
+                run chmod a-x "$dst"
+            fi
+            ok "已修正权限: $dst_spec"
+        else
+            confirm_write "apply $dst_spec" || return 1
+            [[ -e "$dst" || -L "$dst" ]] && backup_path "$dst"
+            run mkdir -p "$(dirname "$dst")"
+            run cp -a "$src" "$dst"
+            [[ -x "$src" ]] && run chmod +x "$dst"
+            ok "已复制: $src_rel -> $dst_spec"
+        fi
+    fi
+}
+
+capture_entry() {
+    local mode="$1"
+    local src_rel="$2"
+    local dst_spec="$3"
+    local src dst link_target
+    src="$(repo_path "$src_rel")"
+    dst="$(expand_path "$dst_spec")"
+
+    if [[ ! -e "$dst" && ! -L "$dst" ]]; then
+        warn "跳过，系统目标不存在: $dst_spec"
+        return 0
+    fi
+
+    if [[ "$mode" == "link" && -L "$dst" ]]; then
+        link_target="$(readlink "$dst")"
+        if [[ "$link_target" == "$src" ]]; then
+            ok "已由仓库管理: $dst_spec"
+            return 0
+        fi
+    fi
+
+    if same_file_content "$src" "$dst"; then
+        ok "内容一致: $dst_spec"
+    else
+        confirm_write "capture $dst_spec" || return 1
+        [[ -e "$src" || -L "$src" ]] && backup_path "$src"
+        run mkdir -p "$(dirname "$src")"
+        run cp -a "$dst" "$src"
+        ok "已用系统覆盖仓库: $dst_spec -> $src_rel"
+    fi
+
+    if [[ "$mode" == "link" ]]; then
+        confirm_write "relink $dst_spec" || return 1
+        if [[ ! -L "$dst" || "$(readlink "$dst")" != "$src" ]]; then
+            backup_path "$dst"
+            run ln -sfn "$src" "$dst"
+            ok "已重新链接: $dst_spec -> $src_rel"
+        fi
+    fi
+}
+
+manifest_has_entry() {
+    local src_rel="$1"
+    local dst_spec="$2"
+    grep -Fxq "copy $src_rel => $dst_spec" "$MANIFEST"
+}
+
+track_tool() {
+    parse_args "$@"
+
+    if [[ -z "$FILTER" ]]; then
+        bad "track-tool 需要工具名称或路径"
+        exit 1
+    fi
+
+    local tool_arg tool_name system_path src_rel src dst_spec
+    tool_arg="$FILTER"
+    tool_name="$(basename "$tool_arg")"
+
+    if [[ "$tool_arg" == */* ]]; then
+        system_path="$(expand_path "$tool_arg")"
+    else
+        system_path="$HOME/.local/bin/$tool_name"
+    fi
+
+    src_rel="tools/bin/$tool_name"
+    src="$(repo_path "$src_rel")"
+    dst_spec="~/.local/bin/$tool_name"
+
+    if [[ ! -e "$system_path" ]]; then
+        bad "找不到本地工具: $system_path"
+        exit 1
+    fi
+
+    confirm_write "track-tool $tool_name" || return 1
+    [[ -e "$src" || -L "$src" ]] && backup_path "$src"
+    run mkdir -p "$(dirname "$src")"
+    run cp -a "$system_path" "$src"
+    [[ -x "$system_path" ]] && run chmod +x "$src"
+
+    if manifest_has_entry "$src_rel" "$dst_spec"; then
+        ok "manifest 已包含: $src_rel"
+    else
+        if [[ "$DRY_RUN" -eq 1 ]]; then
+            printf '  (dry) append manifest entry: copy %s => %s\n' "$src_rel" "$dst_spec"
+        else
+            printf 'copy %s => %s\n' "$src_rel" "$dst_spec" >> "$MANIFEST"
+        fi
+        ok "已登记工具: $tool_name"
+    fi
+}
+
+parse_args() {
+    local arg
+    while [[ $# -gt 0 ]]; do
+        arg="$1"
+        case "$arg" in
+            --dry-run|-n) DRY_RUN=1 ;;
+            --yes|-y) ASSUME_YES=1 ;;
+            --help|-h) usage; exit 0 ;;
+            *)
+                if [[ -z "$FILTER" ]]; then
+                    FILTER="$arg"
+                else
+                    bad "只能提供一个 filter: $arg"
+                    exit 1
+                fi
+                ;;
+        esac
+        shift
+    done
+}
+
+main() {
+    local cmd="${1:-}"
+    [[ $# -gt 0 ]] && shift || true
+
+    case "$cmd" in
+        status)
+            parse_args "$@"
+            read_manifest status_entry
+            ;;
+        apply)
+            parse_args "$@"
+            [[ "$DRY_RUN" -eq 1 ]] && info "演习模式：不会写入文件"
+            read_manifest apply_entry
+            ;;
+        capture)
+            parse_args "$@"
+            [[ "$DRY_RUN" -eq 1 ]] && info "演习模式：不会写入文件"
+            read_manifest capture_entry
+            ;;
+        restore)
+            parse_args "$@"
+            [[ "$DRY_RUN" -eq 1 ]] && info "演习模式：不会写入文件"
+            read_manifest apply_entry
+            ;;
+        doctor)
+            parse_args "$@"
+            read_manifest status_entry
+            ;;
+        track-tool)
+            track_tool "$@"
+            ;;
+        git-diff|diff)
+            git -C "$REPO_ROOT" diff "$@"
+            ;;
+        git-status|git)
+            git -C "$REPO_ROOT" status "$@"
+            ;;
+        ""|--help|-h)
+            usage
+            ;;
+        *)
+            bad "未知命令: $cmd"
+            usage
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"

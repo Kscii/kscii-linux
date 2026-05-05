@@ -152,8 +152,10 @@ link_dotfile "mako/config" "$HOME/.config/mako/config"
 # ── fcitx5 输入法框架 ─────────────────────────────────────────────────────
 info "部署 fcitx5..."
 link_dotfile "fcitx5/profile"             "$HOME/.config/fcitx5/profile"
+link_dotfile "fcitx5/config"              "$HOME/.config/fcitx5/config"
 link_dotfile "fcitx5/conf/classicui.conf" "$HOME/.config/fcitx5/conf/classicui.conf"
-link_dotfile "fcitx5/conf/fcitx5.conf"   "$HOME/.config/fcitx5/conf/fcitx5.conf"
+link_dotfile "fcitx5/themes/ThinkPad/theme.conf" \
+    "$HOME/.local/share/fcitx5/themes/ThinkPad/theme.conf"
 
 # ── Rime 输入法 ───────────────────────────────────────────────────────────
 info "部署 Rime..."
@@ -226,6 +228,7 @@ install_script "niri-lock.sh"          "niri-lock.sh"
 install_script "niri-record.sh"        "niri-record.sh"
 install_script "swayidle-start.sh"     "swayidle-start.sh"
 install_script "waybar-ime.sh"         "waybar-ime.sh"
+install_script "volume.sh"             "volume.sh"
 install_script "gen-logo.py"           "gen-logo"
 
 # ── 生成 fastfetch 球形 Logo ──────────────────────────────────────────────

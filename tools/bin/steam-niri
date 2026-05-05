@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+export DISPLAY=:12
+
+# 如果 :12 没有对应的 xwayland-satellite，才启动
+if ! pgrep -f "xwayland-satellite :12" >/dev/null; then
+    xwayland-satellite :12 >/tmp/xwayland-satellite-steam.log 2>&1 &
+    sleep 1
+fi
+
+exec steam -cef-disable-gpu "$@"

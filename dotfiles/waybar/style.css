@@ -73,6 +73,7 @@ window#waybar {
 #network,
 #bluetooth,
 #custom-ime,
+#pulseaudio,
 #battery,
 #tray {
     font-family: "IBM Plex Mono";
@@ -127,6 +128,15 @@ window#waybar {
 
 #custom-ime.en {
     color: #888888;
+}
+
+/* ── 音量 ── */
+#pulseaudio {
+    color: #cccccc;
+}
+
+#pulseaudio.muted {
+    color: #555555;
 }
 
 /* ── 电池 ── */

@@ -1,6 +1,6 @@
 // ThinkPad 键盘优先 niri 合成器配置
 // 配色：纯黑（#000000）+ ThinkPad 红（#E2000F）
-// 快捷键参考：docs/keybindings.md
+// Mod = Super（Win 键）
 
 // ─── 环境变量 ─────────────────────────────────────────────────────────────
 
@@ -9,22 +9,28 @@ environment {
     QT_QPA_PLATFORM "wayland"
     QT_WAYLAND_DISABLE_WINDOWDECORATION "1"
     GDK_BACKEND "wayland,x11"
-    // Electron 应用 Wayland 支持
+
+    // Electron / Chromium Wayland
     ELECTRON_OZONE_PLATFORM_HINT "wayland"
-    // 输入法环境变量
+    NIXOS_OZONE_WL "1"
+
+    // 桌面环境标识
+    XDG_CURRENT_DESKTOP "niri"
+    XDG_SESSION_DESKTOP "niri"
+    XDG_SESSION_TYPE "wayland"
+
+    // 输入法
     XMODIFIERS "@im=fcitx"
     QT_IM_MODULE "fcitx"
     GTK_IM_MODULE "fcitx"
     SDL_IM_MODULE "fcitx"
     GLFW_IM_MODULE "ibus"
-    // 光标主题
+
+    // 光标
     XCURSOR_THEME "Adwaita"
     XCURSOR_SIZE "24"
-}
 
-// ─── XWayland（X11 兼容层）────────────────────────────────────────────────
-
-xwayland {
+    DISPLAY ":12"
 }
 
 // ─── 输入设备 ─────────────────────────────────────────────────────────────
@@ -33,7 +39,7 @@ input {
     keyboard {
         xkb {
             layout "us"
-            // options "ctrl:nocaps"  // 取消注释可将 Caps Lock 重映射为 Ctrl
+            // options "ctrl:nocaps"
         }
         numlock
         repeat-delay 300
@@ -43,7 +49,7 @@ input {
     touchpad {
         tap
         natural-scroll
-        // dwt  // 打字时禁用触控板（按需取消注释）
+        // dwt
         accel-speed 0.2
     }
 
@@ -52,35 +58,29 @@ input {
         accel-profile "flat"
     }
 
-    // ThinkPad TrackPoint：中键滚动
     trackpoint {
         natural-scroll
         accel-speed 0.3
         scroll-method "on-button-down"
-        scroll-button 274  // 中键编号，请用 libinput debug-events 验证
+        scroll-button 274
     }
 
     warp-mouse-to-focus
 }
 
 // ─── 输出（显示器）────────────────────────────────────────────────────────
-// 在首次执行 scripts/gui/post-niri.sh 且运行于 niri 会话内时，
-// 此区块会被脚本自动改写为当前输出信息。
-// 如需手动调整，也请只编辑此托管区块内部。
-// AUTO-DETECTED OUTPUT START
-/-output "eDP-1" {
-    mode "2880x1800@60"
+
+output "eDP-1" {
+    mode "2880x1800@60.000"
     scale 1.5
     transform "normal"
 }
-// AUTO-DETECTED OUTPUT END
 
 // ─── 布局 ─────────────────────────────────────────────────────────────────
 
 layout {
     gaps 12
 
-    // 溢出时居中聚焦列（符合人机工学的滚动体验）
     center-focused-column "on-overflow"
 
     preset-column-widths {
@@ -92,7 +92,6 @@ layout {
 
     default-column-width { proportion 0.5; }
 
-    // 焦点环：活动窗口 ThinkPad 红，非活动窗口深灰
     focus-ring {
         width 2
         active-color "#E2000F"
@@ -123,7 +122,7 @@ layout {
 // 状态栏
 spawn-at-startup "waybar"
 
-// 纯黑背景（OLED 最优）
+// 纯黑背景
 spawn-at-startup "swaybg" "-c" "#000000"
 
 // Polkit 认证代理
@@ -135,167 +134,165 @@ spawn-at-startup "fcitx5" "-d"
 // 通知守护进程
 spawn-at-startup "mako"
 
-// 窗口焦点历史守护进程（用于 Alt+Tab）
-spawn-at-startup "bash" "-c" "~/.local/bin/niri-focus-daemon.sh"
-
-// 空闲管理：10 分钟锁屏，40 分钟关显，合盖锁屏
-// （脚本位于 ~/.local/bin/swayidle-start.sh，由 setup.sh 安装）
+// 空闲管理
 spawn-sh-at-startup "exec $HOME/.local/bin/swayidle-start.sh"
 
 // ─── 杂项 ─────────────────────────────────────────────────────────────────
 
-// 尽量移除客户端窗口装饰（CSD）——更整洁的外观
 prefer-no-csd
 
-// 截图保存路径
 screenshot-path "~/Pictures/Screenshots/Screenshot_%Y-%m-%d_%H-%M-%S.png"
 
-// 关闭启动时快捷键提示（使用 docs/keybindings.md 代替）
 hotkey-overlay {
     skip-at-startup
 }
 
-// 动画：保留但保持克制
 animations {
     slowdown 0.8
 }
 
 // ─── 窗口规则 ─────────────────────────────────────────────────────────────
 
-// 轻微圆角——工程风格，不过于圆润
 window-rule {
     geometry-corner-radius 4
     clip-to-geometry true
 }
 
-// Firefox 画中画 → 浮动
 window-rule {
     match app-id=r#"firefox$"# title="^Picture-in-Picture$"
     open-floating true
 }
 
-// 文件选择对话框 → 浮动
 window-rule {
     match app-id=r#"xdg-desktop-portal"#
     open-floating true
 }
 
-// Thunar 文件操作对话框 → 浮动
 window-rule {
     match app-id="thunar" title=r#"(File Operation|Copying|Moving|Deleting)"#
     open-floating true
 }
 
-// 密码 / 认证对话框 → 浮动
 window-rule {
     match app-id=r#"(polkit|gcr-prompter|seahorse)"#
     open-floating true
 }
 
-// KeePassXC 密码库 → 阻止屏幕截图
 window-rule {
     match app-id=r#"^org\.keepassxc\.KeePassXC$"#
     block-out-from "screen-capture"
 }
 
 // ─── 快捷键 ───────────────────────────────────────────────────────────────
-// 完整参考：docs/keybindings.md
-// Mod = Super（Win 键）
 
 binds {
-
-    // ── 帮助 ──────────────────────────────────────────────────────────────
+    // 帮助
     Mod+Shift+Slash { show-hotkey-overlay; }
 
-    // ── 应用启动（Mod + 字母）────────────────────────────────────────────
-    Mod+T    hotkey-overlay-title="终端: kitty"               { spawn "kitty"; }
-    Mod+B    hotkey-overlay-title="浏览器: firefox"            { spawn "firefox"; }
-    Mod+E    hotkey-overlay-title="文件管理器: yazi"           { spawn-sh "kitty --title 'File Manager' -e yazi"; }
-    Mod+Shift+E hotkey-overlay-title="文件管理器 GUI: thunar"  { spawn "thunar"; }
+    // 应用启动
+    Mod+T hotkey-overlay-title="终端: kitty" { spawn "kitty"; }
+    Mod+B hotkey-overlay-title="浏览器: firefox" { spawn "firefox"; }
+    Mod+E hotkey-overlay-title="文件管理器: yazi" { spawn-sh "kitty --title 'File Manager' -e yazi"; }
+    Mod+Shift+E hotkey-overlay-title="文件管理器 GUI: thunar" { spawn "thunar"; }
 
-    // ── 启动器 ────────────────────────────────────────────────────────────
-    Alt+Space   hotkey-overlay-title="应用启动器: fuzzel"      { spawn "fuzzel"; }
-    Mod+O    repeat=false hotkey-overlay-title="概览"          { toggle-overview; }
-    Mod+Tab  repeat=false hotkey-overlay-title="上一个窗口"    { focus-window-previous; }
+    // 启动器 / 概览 / 窗口切换
+    Alt+Space hotkey-overlay-title="应用启动器: fuzzel" { spawn "fuzzel"; }
+    Mod+O repeat=false hotkey-overlay-title="概览" { toggle-overview; }
 
-    // ── 窗口切换器（Alt+Tab — 近似 GNOME 风格）───────────────────────────
-    // 单次：切换到上一个窗口；0.75 秒内双击：显示窗口选择器
-    Alt+Tab  repeat=false hotkey-overlay-title="窗口切换器"    { spawn-sh "~/.local/bin/niri-alt-tab.sh"; }
-    Alt+Shift+Tab repeat=false hotkey-overlay-title="窗口选择器" { spawn-sh "~/.local/bin/niri-window-picker.sh"; }
+    Alt+Tab repeat=false hotkey-overlay-title="上一个窗口" { focus-window-previous; }
+    Alt+Shift+Tab repeat=false hotkey-overlay-title="概览" { toggle-overview; }
 
-    // ── 窗口管理 ──────────────────────────────────────────────────────────
-    Mod+Q  repeat=false hotkey-overlay-title="关闭窗口"        { close-window; }
-    Mod+F  hotkey-overlay-title="最大化列"                     { maximize-column; }
-    Mod+Shift+F hotkey-overlay-title="全屏"                    { fullscreen-window; }
-    Mod+M  hotkey-overlay-title="扩展至边缘"                   { maximize-window-to-edges; }
-    Mod+V  hotkey-overlay-title="切换浮动"                     { toggle-window-floating; }
-    Mod+Shift+V                                                { switch-focus-between-floating-and-tiling; }
-    Mod+W  hotkey-overlay-title="切换标签页显示"                { toggle-column-tabbed-display; }
-    Mod+C  hotkey-overlay-title="居中列"                       { center-column; }
-    Mod+Ctrl+C                                                 { center-visible-columns; }
-    Mod+R  hotkey-overlay-title="循环列宽"                     { switch-preset-column-width; }
-    Mod+Shift+R                                                { switch-preset-column-width-back; }
-    Mod+Ctrl+R                                                 { reset-window-height; }
-    Mod+Ctrl+Shift+R                                           { switch-preset-window-height; }
-    Mod+Ctrl+F                                                 { expand-column-to-available-width; }
-    Mod+Minus       { set-column-width "-10%"; }
-    Mod+Equal       { set-column-width "+10%"; }
+    Mod+Tab repeat=false hotkey-overlay-title="上一个工作区" { focus-workspace-previous; }
+
+    // 窗口管理
+    Mod+Q repeat=false hotkey-overlay-title="关闭窗口" { close-window; }
+    Mod+F hotkey-overlay-title="最大化列" { maximize-column; }
+    Mod+Shift+F hotkey-overlay-title="全屏" { fullscreen-window; }
+    Mod+M hotkey-overlay-title="扩展至边缘" { maximize-window-to-edges; }
+
+    Mod+V hotkey-overlay-title="切换浮动" { toggle-window-floating; }
+    Mod+Shift+V { switch-focus-between-floating-and-tiling; }
+
+    Mod+W hotkey-overlay-title="切换标签页显示" { toggle-column-tabbed-display; }
+
+    Mod+C hotkey-overlay-title="居中列" { center-column; }
+    Mod+Alt+C hotkey-overlay-title="居中窗口" { center-window; }
+    Mod+Ctrl+C { center-visible-columns; }
+
+    Mod+R hotkey-overlay-title="循环列宽" { switch-preset-column-width; }
+    Mod+Shift+R { switch-preset-column-width-back; }
+
+    Mod+Ctrl+R { reset-window-height; }
+    Mod+Ctrl+Shift+R { switch-preset-window-height; }
+    Mod+Ctrl+F { expand-column-to-available-width; }
+
+    Mod+Minus { set-column-width "-10%"; }
+    Mod+Equal { set-column-width "+10%"; }
     Mod+Shift+Minus { set-window-height "-10%"; }
     Mod+Shift+Equal { set-window-height "+10%"; }
 
-    // 列堆叠（vim 风格：合并/弹出）
-    Mod+BracketLeft  { consume-or-expel-window-left; }
+    // 列堆叠
+    Mod+BracketLeft { consume-or-expel-window-left; }
     Mod+BracketRight { consume-or-expel-window-right; }
-    Mod+Comma        { consume-window-into-column; }
-    Mod+Period       { expel-window-from-column; }
+    Mod+Comma { consume-window-into-column; }
+    Mod+Period { expel-window-from-column; }
 
-    // ── 焦点导航（hjkl + 方向键，vim 风格）──────────────────────────────
-    Mod+H     { focus-column-left; }
-    Mod+Left  { focus-column-left; }
-    Mod+L     { focus-column-right; }
+    // 焦点导航：vim 风格
+    Mod+H { focus-column-left-or-last; }
+    Mod+L { focus-column-right-or-first; }
+    Mod+J { focus-window-or-workspace-down; }
+    Mod+K { focus-window-or-workspace-up; }
+
+    Mod+Left { focus-column-left; }
     Mod+Right { focus-column-right; }
-    Mod+J     { focus-window-down; }
-    Mod+Down  { focus-window-down; }
-    Mod+K     { focus-window-up; }
-    Mod+Up    { focus-window-up; }
-    Mod+Home  { focus-column-first; }
-    Mod+End   { focus-column-last; }
+    Mod+Down { focus-window-down; }
+    Mod+Up { focus-window-up; }
 
-    // ── 移动窗口（Ctrl+hjkl）─────────────────────────────────────────────
-    Mod+Ctrl+H     { move-column-left; }
-    Mod+Ctrl+Left  { move-column-left; }
-    Mod+Ctrl+L     { move-column-right; }
+    Mod+Home { focus-column-first; }
+    Mod+End { focus-column-last; }
+
+    // 移动窗口 / 列
+    Mod+Ctrl+H { move-column-left; }
+    Mod+Ctrl+L { move-column-right; }
+    Mod+Ctrl+J { move-window-down; }
+    Mod+Ctrl+K { move-window-up; }
+
+    Mod+Ctrl+Left { move-column-left; }
     Mod+Ctrl+Right { move-column-right; }
-    Mod+Ctrl+J     { move-window-down; }
-    Mod+Ctrl+Down  { move-window-down; }
-    Mod+Ctrl+K     { move-window-up; }
-    Mod+Ctrl+Up    { move-window-up; }
-    Mod+Ctrl+Home  { move-column-to-first; }
-    Mod+Ctrl+End   { move-column-to-last; }
+    Mod+Ctrl+Down { move-window-down; }
+    Mod+Ctrl+Up { move-window-up; }
 
-    // ── 聚焦显示器（Shift+hjkl）──────────────────────────────────────────
-    Mod+Shift+H     { focus-monitor-left; }
-    Mod+Shift+Left  { focus-monitor-left; }
-    Mod+Shift+L     { focus-monitor-right; }
+    Mod+Ctrl+Home { move-column-to-first; }
+    Mod+Ctrl+End { move-column-to-last; }
+
+    // 聚焦显示器
+    Mod+Shift+H { focus-monitor-left; }
+    Mod+Shift+L { focus-monitor-right; }
+    Mod+Shift+J { focus-monitor-down; }
+    Mod+Shift+K { focus-monitor-up; }
+
+    Mod+Shift+Left { focus-monitor-left; }
     Mod+Shift+Right { focus-monitor-right; }
-    Mod+Shift+J     { focus-monitor-down; }
-    Mod+Shift+Down  { focus-monitor-down; }
-    Mod+Shift+K     { focus-monitor-up; }
-    Mod+Shift+Up    { focus-monitor-up; }
+    Mod+Shift+Down { focus-monitor-down; }
+    Mod+Shift+Up { focus-monitor-up; }
 
-    // ── 移动到显示器（Shift+Ctrl+hjkl）──────────────────────────────────
-    Mod+Shift+Ctrl+H     { move-column-to-monitor-left; }
-    Mod+Shift+Ctrl+Left  { move-column-to-monitor-left; }
-    Mod+Shift+Ctrl+L     { move-column-to-monitor-right; }
+    // 移动到显示器
+    Mod+Shift+Ctrl+H { move-column-to-monitor-left; }
+    Mod+Shift+Ctrl+L { move-column-to-monitor-right; }
+    Mod+Shift+Ctrl+J { move-column-to-monitor-down; }
+    Mod+Shift+Ctrl+K { move-column-to-monitor-up; }
+
+    Mod+Shift+Ctrl+Left { move-column-to-monitor-left; }
     Mod+Shift+Ctrl+Right { move-column-to-monitor-right; }
-    Mod+Shift+Ctrl+J     { move-column-to-monitor-down; }
-    Mod+Shift+Ctrl+Down  { move-column-to-monitor-down; }
-    Mod+Shift+Ctrl+K     { move-column-to-monitor-up; }
-    Mod+Shift+Ctrl+Up    { move-column-to-monitor-up; }
+    Mod+Shift+Ctrl+Down { move-column-to-monitor-down; }
+    Mod+Shift+Ctrl+Up { move-column-to-monitor-up; }
 
-    // ── 工作区 ────────────────────────────────────────────────────────────
+    // 工作区
     Mod+Page_Down { focus-workspace-down; }
-    Mod+Page_Up   { focus-workspace-up; }
+    Mod+Page_Up { focus-workspace-up; }
+
+    Mod+Grave hotkey-overlay-title="上一个工作区" { focus-workspace-previous; }
+
     Mod+1 { focus-workspace 1; }
     Mod+2 { focus-workspace 2; }
     Mod+3 { focus-workspace 3; }
@@ -303,60 +300,69 @@ binds {
     Mod+5 { focus-workspace 5; }
     Mod+6 { focus-workspace 6; }
 
-    // 将窗口移到工作区
-    Mod+Ctrl+Page_Down { move-column-to-workspace-down; }
-    Mod+Ctrl+Page_Up   { move-column-to-workspace-up; }
-    Mod+Ctrl+1 { move-column-to-workspace 1; }
-    Mod+Ctrl+2 { move-column-to-workspace 2; }
-    Mod+Ctrl+3 { move-column-to-workspace 3; }
-    Mod+Ctrl+4 { move-column-to-workspace 4; }
-    Mod+Ctrl+5 { move-column-to-workspace 5; }
-    Mod+Ctrl+6 { move-column-to-workspace 6; }
+    // 移动当前窗口到工作区
+    Mod+Ctrl+Page_Down { move-window-to-workspace-down; }
+    Mod+Ctrl+Page_Up { move-window-to-workspace-up; }
 
-    // 重排工作区顺序
+    Mod+Ctrl+1 { move-window-to-workspace 1; }
+    Mod+Ctrl+2 { move-window-to-workspace 2; }
+    Mod+Ctrl+3 { move-window-to-workspace 3; }
+    Mod+Ctrl+4 { move-window-to-workspace 4; }
+    Mod+Ctrl+5 { move-window-to-workspace 5; }
+    Mod+Ctrl+6 { move-window-to-workspace 6; }
+
+    // 重排工作区
     Mod+Shift+Page_Down { move-workspace-down; }
-    Mod+Shift+Page_Up   { move-workspace-up; }
+    Mod+Shift+Page_Up { move-workspace-up; }
 
-    // ── 截图 ──────────────────────────────────────────────────────────────
-    // Print          → 交互式区域截图（拖选区域，Enter/Ctrl+C 保存/复制）
-    Print              { screenshot; }
-    Shift+Print        { screenshot-window; }
-    Ctrl+Print         { screenshot-screen; }
-    // Mod+Print      → 开始/停止区域录屏
-    Mod+Print          { spawn-sh "~/.local/bin/niri-record.sh region"; }
-    // Mod+Shift+Print → 开始/停止全屏录制
-    Mod+Shift+Print    { spawn-sh "~/.local/bin/niri-record.sh screen"; }
+    // 截图 / 录屏
+    Print { screenshot; }
+    Shift+Print { screenshot-window; }
+    Ctrl+Print { screenshot-screen; }
 
-    // ── 系统 ──────────────────────────────────────────────────────────────
-    Mod+Alt+L   hotkey-overlay-title="锁屏"                    { spawn-sh "~/.local/bin/niri-lock.sh"; }
-    Mod+Shift+P hotkey-overlay-title="关闭显示器"               { power-off-monitors; }
-    Mod+Shift+Q hotkey-overlay-title="退出 niri"               { quit; }
-    Ctrl+Alt+Delete                                            { quit; }
-    Mod+Escape  allow-inhibiting=false                         { toggle-keyboard-shortcuts-inhibit; }
+    Mod+Print { spawn-sh "~/.local/bin/niri-record.sh region"; }
+    Mod+Shift+Print { spawn-sh "~/.local/bin/niri-record.sh screen"; }
 
-    // ── 媒体键 ────────────────────────────────────────────────────────────
-    XF86AudioRaiseVolume  allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05+ -l 1.0"; }
-    XF86AudioLowerVolume  allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05-"; }
-    XF86AudioMute         allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
-    XF86AudioMicMute      allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
-    XF86AudioPlay         allow-when-locked=true { spawn "playerctl" "play-pause"; }
-    XF86AudioStop         allow-when-locked=true { spawn "playerctl" "stop"; }
-    XF86AudioPrev         allow-when-locked=true { spawn "playerctl" "previous"; }
-    XF86AudioNext         allow-when-locked=true { spawn "playerctl" "next"; }
+    // 系统
+    Mod+Alt+L hotkey-overlay-title="锁屏" { spawn-sh "~/.local/bin/niri-lock.sh"; }
+    Mod+Shift+P hotkey-overlay-title="关闭显示器" { power-off-monitors; }
+    Mod+Shift+Q hotkey-overlay-title="退出 niri" { quit; }
+    Ctrl+Alt+Delete { quit; }
 
-    // ── 亮度键 ────────────────────────────────────────────────────────────
-    XF86MonBrightnessUp   allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "+5%"; }
+    Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
+
+    // 重新加载配置
+    // 你的 niri 版本不接受 { load-config-file; } 作为配置动作，所以用 CLI。
+    Mod+Shift+C hotkey-overlay-title="重载 niri 配置" { spawn "niri" "msg" "action" "load-config-file"; }
+
+    // 媒体键
+    XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "~/.local/bin/volume.sh up"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn-sh "~/.local/bin/volume.sh down"; }
+    XF86AudioMute allow-when-locked=true { spawn-sh "~/.local/bin/volume.sh mute"; }
+    XF86AudioMicMute allow-when-locked=true { spawn-sh "~/.local/bin/volume.sh mic-mute"; }
+
+    XF86AudioPlay allow-when-locked=true { spawn "playerctl" "play-pause"; }
+    XF86AudioStop allow-when-locked=true { spawn "playerctl" "stop"; }
+    XF86AudioPrev allow-when-locked=true { spawn "playerctl" "previous"; }
+    XF86AudioNext allow-when-locked=true { spawn "playerctl" "next"; }
+
+    // 亮度键
+    XF86MonBrightnessUp allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "+5%"; }
     XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "5%-"; }
 
-    // ── 滚动绑定 ──────────────────────────────────────────────────────────
-    Mod+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
-    Mod+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
-    Mod+Ctrl+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
-    Mod+Ctrl+WheelScrollUp   cooldown-ms=150 { move-column-to-workspace-up; }
-    Mod+WheelScrollRight     { focus-column-right; }
-    Mod+WheelScrollLeft      { focus-column-left; }
+    // 滚动绑定
+    Mod+WheelScrollDown cooldown-ms=150 { focus-workspace-down; }
+    Mod+WheelScrollUp cooldown-ms=150 { focus-workspace-up; }
+
+    Mod+Ctrl+WheelScrollDown cooldown-ms=150 { move-window-to-workspace-down; }
+    Mod+Ctrl+WheelScrollUp cooldown-ms=150 { move-window-to-workspace-up; }
+
+    Mod+WheelScrollRight { focus-column-right; }
+    Mod+WheelScrollLeft { focus-column-left; }
+
     Mod+Ctrl+WheelScrollRight { move-column-right; }
-    Mod+Ctrl+WheelScrollLeft  { move-column-left; }
+    Mod+Ctrl+WheelScrollLeft { move-column-left; }
+
     Mod+Shift+WheelScrollDown { focus-column-right; }
-    Mod+Shift+WheelScrollUp   { focus-column-left; }
+    Mod+Shift+WheelScrollUp { focus-column-left; }
 }
