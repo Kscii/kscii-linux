@@ -170,16 +170,22 @@ fi
 if command -v systemctl &>/dev/null && systemctl --user show &>/dev/null 2>&1; then
     info "启用用户音频服务..."
     for _svc in pipewire pipewire-pulse wireplumber; do
-        run systemctl --user enable --now "$_svc" 2>/dev/null && ok "音频服务：$_svc" \
-            || warn "无法启用 $_svc（可能需要重新登录）"
+        if run systemctl --user enable --now "$_svc" 2>/dev/null; then
+            ok "音频服务：$_svc"
+        else
+            warn "无法启用 $_svc（首次登录后常见，可在重新登录后重试：systemctl --user enable --now $_svc）"
+        fi
     done
 fi
 
 # ── 重建 Rime 数据库 ──────────────────────────────────────────────────────
 if command -v rime_deployer &>/dev/null; then
     info "重建 Rime 数据库..."
-    run rime_deployer --build "$HOME/.local/share/fcitx5/rime/"
-    ok "Rime 数据库已重建"
+    if run rime_deployer --build "$HOME/.local/share/fcitx5/rime/"; then
+        ok "Rime 数据库已重建"
+    else
+        warn "Rime 数据库重建失败，可稍后手动重试：rime_deployer --build $HOME/.local/share/fcitx5/rime/"
+    fi
 elif [[ $DRY_RUN -eq 0 ]]; then
     warn "找不到 rime_deployer — 请重启 fcitx5 以应用 Rime 配置"
 fi
