@@ -50,5 +50,6 @@ copy scripts/desktop/swayidle-start.sh => ~/.local/bin/swayidle-start.sh
 copy scripts/desktop/waybar-ime.sh => ~/.local/bin/waybar-ime.sh
 copy scripts/desktop/volume.sh => ~/.local/bin/volume.sh
 copy scripts/desktop/gen-logo.py => ~/.local/bin/gen-logo
+copy scripts/desktop/apply-logo.sh => ~/.local/bin/apply-logo
 copy scripts/dotctl => ~/.local/bin/dotctl
 copy tools/bin/steam-niri => ~/.local/bin/steam-niri

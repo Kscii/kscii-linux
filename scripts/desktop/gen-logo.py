@@ -10,9 +10,9 @@
     gen-logo --plain        → 输出到标准输出（不带颜色，供 imagemagick 等使用）
 
 可调参数（直接修改脚本开头的常量，或通过函数参数传入）:
-    width       球体宽度（字符数），默认 39
+    width       球体宽度（字符数），默认 35
     height      球体高度（行数），默认 19
-    y_ratio     纵横比校正（终端字符高宽比约 0.5），默认 0.68
+    y_ratio     纵横比校正（终端字符高宽比约 0.5），默认 0.86
     chars       亮度映射字符集（从暗到亮），默认 " .:-=+*#%@"
     light       光源方向向量 (x, y, z)
     base        环境光强度，默认 0.14
@@ -43,9 +43,9 @@ def normalize(x, y, z):
 
 def render_sphere(
     *,
-    width=39,
-    height=19,
-    y_ratio=0.68,
+    width=31,
+    height=17,
+    y_ratio=0.86,
     chars=" .:-=+*#%@",
     light=(-0.42, -0.62, 0.74),
     base=0.14,
@@ -89,6 +89,11 @@ def render_sphere(
 
         rows.append("".join(row).rstrip())
 
+    while rows and not rows[0].strip():
+        rows.pop(0)
+    while rows and not rows[-1].strip():
+        rows.pop()
+
     return "\n".join(rows)
 
 
@@ -113,9 +118,27 @@ def main():
         action="store_true",
         help="输出到标准输出（纯 ASCII，无 ANSI 颜色），供 imagemagick 等工具使用",
     )
+    parser.add_argument(
+        "--width",
+        type=int,
+        default=31,
+        help="球体宽度（字符数），默认 31",
+    )
+    parser.add_argument(
+        "--height",
+        type=int,
+        default=17,
+        help="球体高度（行数），默认 17",
+    )
+    parser.add_argument(
+        "--y-ratio",
+        type=float,
+        default=0.86,
+        help="纵横比校正，数值越大越高，默认 0.86",
+    )
     args = parser.parse_args()
 
-    art = render_sphere()
+    art = render_sphere(width=args.width, height=args.height, y_ratio=args.y_ratio)
     colored = colorize(art)
 
     if args.plain:
