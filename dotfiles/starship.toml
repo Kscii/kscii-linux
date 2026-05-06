@@ -4,11 +4,13 @@
 "$schema" = "https://starship.rs/config-schema.json"
 
 # ── 提示符布局 ─────────────────────────────────────────────────────────────
-# 左侧：[目录][git][语言标识] → 右侧：[耗时]
+# 左侧：[用户@主机][目录][git][语言标识] → 右侧：[耗时]
 # 新行：❯（成功时红色，错误时亮红色）
 
 format = """
 [](fg:#E2000F)\
+$username\
+$hostname\
 $directory\
 [](fg:#E2000F bg:#1a1a1a)\
 $git_branch\
@@ -26,12 +28,12 @@ $character"""
 
 # ── 目录 ───────────────────────────────────────────────────────────────────
 [directory]
-style = "bg:#E2000F fg:#000000 bold"
+style = "bg:#1a1a1a fg:#E2000F bold"
 format = "[ $path ]($style)"
 truncation_length = 4
 truncation_symbol = "…/"
 read_only = " 󰌾"
-read_only_style = "bg:#E2000F fg:#000000"
+read_only_style = "bg:#1a1a1a fg:#E2000F"
 
 [directory.substitutions]
 "Documents" = "󰈙"
@@ -41,13 +43,13 @@ read_only_style = "bg:#E2000F fg:#000000"
 
 # ── Git ────────────────────────────────────────────────────────────────────
 [git_branch]
-style = "bg:#1a1a1a fg:#E2000F"
+style = "bg:#1a1a1a fg:#E2000F bold"
 format = "[ $symbol$branch ]($style)"
 symbol = " "
 truncation_length = 20
 
 [git_status]
-style = "bg:#1a1a1a fg:#cccccc"
+style = "bg:#1a1a1a fg:#cccccc bold"
 format = "[$all_status$ahead_behind ]($style)"
 conflicted = "="
 ahead      = "⇡${count}"
@@ -106,15 +108,15 @@ vimcmd_symbol  = "[❮](bold fg:#E2000F)"
 
 # ── 杂项 ───────────────────────────────────────────────────────────────────
 [username]
-show_always = false
-style_user  = "bg:#E2000F fg:#000000"
+show_always = true
+style_user  = "bg:#E2000F fg:#000000 bold"
 style_root  = "bg:#ff0000 fg:#ffffff bold"
-format      = "[$user]($style)"
+format      = "[ $user]($style)"
 
 [hostname]
-ssh_only  = true
-style     = "fg:#E2000F"
-format    = "[@$hostname]($style) "
+ssh_only  = false
+style     = "bg:#E2000F fg:#000000 bold"
+format    = "[@$hostname ]($style)"
 
 [time]
 disabled = true

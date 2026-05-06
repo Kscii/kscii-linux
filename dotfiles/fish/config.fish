@@ -72,3 +72,5 @@ alias niri-load='niri msg action load-config-file'
 alias niri-check='niri validate -c ~/.config/niri/config.kdl'
 # wifi
 alias wifi='nmtui'
+# 微信
+alias wechat-run='DISPLAY=:0 exec wechat-universal "$@"'

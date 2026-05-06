@@ -143,6 +143,7 @@
 | 快捷键 | 功能 |
 |--------|------|
 | `Mod+Alt+L` | 锁屏 |
+| `Mod+Shift+S` | 锁屏后进入睡眠 |
 | `Mod+Shift+P` | 关闭所有显示器（OLED 休眠） |
 | `Mod+Shift+Q` | 退出 niri |
 | `Ctrl+Alt+Delete` | 强制退出 niri |

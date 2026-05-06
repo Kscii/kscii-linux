@@ -36,6 +36,8 @@
 - 包安装按顺序执行：`network -> base -> tui -> desktop -> input -> screenshot -> editors`
 - `scripts/gui/post-niri.sh` 用于图形环境阶段的中文提示与组件检查。
 - `scripts/dotctl` 用于同步当前系统配置、恢复 dotfiles，以及管理本地工具脚本。
+- `scripts/tty/apply-login-power.sh` 用于部署系统级 `greetd` 登录和 logind 合盖策略。
+- `scripts/tty/apply-quiet-boot.sh` 用于为 UKI/systemd-boot 配置安静启动参数。
 
 ## dotctl 同步工作流
 

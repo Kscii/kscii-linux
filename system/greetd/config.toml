@@ -1,0 +1,6 @@
+[terminal]
+vt = 1
+
+[default_session]
+command = "tuigreet --time --remember --remember-session --asterisks --cmd 'dbus-run-session niri' --greeting 'kscii-linux' --theme 'border=red;text=white;prompt=red;time=red;action=red;button=black;container=black;input=white' --kb-command 1 --kb-sessions 2 --kb-power 3 --power-shutdown 'systemctl poweroff' --power-reboot 'systemctl reboot'"
+user = "greeter"

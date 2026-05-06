@@ -48,8 +48,9 @@
 | 启动器     | fuzzel                       | 快速、极简、兼容 dmenu                            |
 | 状态栏     | waybar                       | 灵活、支持 niri 工作区                            |
 | 通知       | mako                         | 轻量、支持点击聚焦                                |
-| 锁屏       | swaylock                     | Wayland 原生，可靠                                |
-| 空闲守护   | swayidle                     | 标准 Wayland 空闲协议                             |
+| 登录       | greetd + tuigreet            | TTY 风格登录，保留 getty 兜底                     |
+| 锁屏       | swaylock                     | Wayland 原生，纯配置红黑锁屏                      |
+| 空闲守护   | swayidle                     | 标准 Wayland 空闲协议，按电源状态执行策略          |
 | 输入法     | fcitx5 + Rime + rime-ice-git | Wayland 上最佳中文输入方案                        |
 | 字体       | IBM Plex（Mono/Sans/Serif）  | IBM 血统，代码显示优秀                            |
 | 图标       | Papirus-Dark                 | 简洁、兼容性广                                    |
@@ -169,7 +170,8 @@ dotfiles/
 | 分辨率与缩放比例         | 首次运行 `post-niri.sh` 时自动写入；必要时再手动调整           |
 | TrackPoint 滚动按键编号  | 假设为 `274`（中键）；用 `libinput debug-events` 验证      |
 | waybar 温度传感器路径    | 在 `waybar/config.jsonc` 中设置 `hwmon-path-abs`           |
-| 锁屏图片分辨率           | 编辑 `scripts/desktop/niri-lock.sh` 中的 `DISPLAY_SIZE`   |
+| 空闲/睡眠时间           | 编辑 `~/.config/kscii-power/policy.conf`                  |
+| 登录与合盖策略           | 运行 `sudo bash scripts/tty/apply-login-power.sh --yes`    |
 | Rime 词库同步路径        | 如需云同步，在 `rime_ice.custom.yaml` 中配置               |
 
 ---
@@ -183,8 +185,8 @@ Phase 1 为**个人可用的日常驱动状态**，以下所有条目需全部�
 - [x] kitty：IBM Plex Mono 主字体 + Nerd Font 符号回退
 - [x] mako：通知支持点击聚焦
 - [x] fcitx5 + Rime + rime-ice 中文输入（Shift_L 提交拼音为 ASCII）
-- [x] swaylock：多风格 ASCII 艺术锁屏
-- [x] swayidle：10 分钟锁屏 / 40 分钟关显 / 合盖锁屏
+- [x] swaylock：纯黑红色命令行风格锁屏
+- [x] swayidle：配置化空闲策略，电池 10 分钟锁屏 / 20 分钟睡眠
 - [x] fish + starship Shell 提示符
 - [x] fuzzel 应用启动器
 - [x] Alt+Tab 窗口切换器（焦点历史守护 + 0.75 秒双击检测）

@@ -1,0 +1,29 @@
+# kscii lock screen theme
+#
+# LOCK_THEME:
+#   minimal   black screen with "kscii-linux locked"
+#   fastfetch black screen with fastfetch text
+LOCK_THEME=fastfetch
+
+# FASTFETCH_MODE:
+#   runtime   run fastfetch when locking, then update the cache
+#   cached    use the cached fastfetch text only
+FASTFETCH_MODE=runtime
+FASTFETCH_TIMEOUT=2
+FASTFETCH_INCLUDE_LOGO=1
+FASTFETCH_LOGO_SOURCE="${XDG_CONFIG_HOME:-$HOME/.config}/fastfetch/logos/trackpoint_rounder.txt"
+FASTFETCH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/kscii-lock"
+FASTFETCH_CACHE="${FASTFETCH_CACHE_DIR}/fastfetch.txt"
+FASTFETCH_LOGO_CACHE="${FASTFETCH_CACHE_DIR}/fastfetch-logo.txt"
+FASTFETCH_INFO_CACHE="${FASTFETCH_CACHE_DIR}/fastfetch-info.txt"
+
+LOCK_TEXT="kscii-linux locked"
+LOCK_COLOR="#E2000F"
+LOCK_BODY_COLOR="#e0e0e0"
+LOCK_FONT_QUERY="IBM Plex Mono"
+LOCK_FONT_SIZE=34
+LOCK_BODY_FONT_SIZE=26
+LOCK_MARGIN_X=40
+LOCK_MARGIN_Y=38
+LOCK_BODY_OFFSET_Y=70
+LOCK_INFO_OFFSET_X=620

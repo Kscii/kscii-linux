@@ -1,4 +1,6 @@
 niri
+greetd
+greetd-tuigreet
 waybar
 fuzzel
 kitty
